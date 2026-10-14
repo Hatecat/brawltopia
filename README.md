@@ -4,6 +4,8 @@ Juego de lucha 2D tipo *platform fighter*, inspirado en Super Smash Bros. y M.U.
 
 ## Estado actual
 
+- **Pantalla de selección de personaje** al iniciar: lista las skins del juego y las que el jugador agregue en su carpeta de datos (`user://skins/`), con el personaje animado. Esc en la pelea vuelve a elegir.
+
 - Escenario con suelo y dos plataformas que se atraviesan desde abajo.
 - Jugador con movimiento horizontal, salto y gravedad. Si cae fuera del escenario, reaparece.
 - **Agacharse** (hurtbox más baja) y **ataques en tres situaciones:** de pie, agachado (puñetazo bajo y barrida) y en el aire (puñetazo y patada voladora; se puede seguir moviendo y el ataque termina al aterrizar).
@@ -33,6 +35,9 @@ Para ver las cajas de colisión y de golpe mientras juegas: menú **Depurar → 
 | Agacharse | S o ↓ (mantener)        |
 | Puñetazo  | J                       |
 | Patada    | K                       |
+| Volver a elegir personaje | Esc       |
+
+En la pantalla de selección: flechas o mouse para elegir; Enter, J o clic para confirmar.
 
 Puñetazo y patada cambian según la situación: de pie, agachado o en el aire.
 
@@ -41,7 +46,8 @@ Puñetazo y patada cambian según la situación: de pie, agachado o en el aire.
 ```
 project.godot                      configuración: ventana, controles, capas de física
 scenes/
-  main.tscn                        escena principal: escenario, jugador, cámara e interfaz
+  main.tscn                        pelea: escenario, jugador, cámara e interfaz
+  ui/character_select.tscn         pantalla "Elige tu personaje" (escena inicial)
   stages/test_stage.tscn           suelo y dos plataformas
   characters/
     player.tscn                    jugador: física, hurtbox, hitbox; usa el visual por piezas
@@ -57,13 +63,16 @@ assets/characters/
 scripts/
   player.gd                        movimiento, salto, gravedad y ataques
   attack_data.gd                   definición de un ataque (AttackData)
-  main.gd                          reaparición al caer del escenario
+  main.gd                          pelea: aplica la skin elegida, reaparición, Esc
+  game_state.gd                    estado global (autoload GameState): personaje elegido
+  ui/character_select.gd           pantalla de selección
   fight_camera.gd                  cámara que encuadra a los luchadores
   visuals/character_visual.gd      interfaz común de los visuales
   visuals/rig_visual.gd            personaje por piezas y carga de skins
   visuals/deform_mesh.gd           imagen que se dobla en una articulación
   visuals/sprite_visual.gd         personaje cuadro a cuadro
   skins/sheet_importer.gd          convierte una hoja de piezas en una skin (SheetImporter)
+  skins/skin_library.gd            catálogo de skins disponibles (SkinLibrary)
 addons/skin_importer/              panel "Skins" del editor (usa SheetImporter)
 tools/                             scripts de Python que generan piezas, plantilla y animaciones
 docs/
@@ -76,7 +85,7 @@ tmp_assets/                        imágenes de origen (hojas de referencia y de
 ## Cambiar de personaje o de skin
 
 - **Personaje:** en `main.tscn`, el nodo `Player` es una instancia de `player.tscn`. Para probar a Matías, reemplázalo por `player_matias_temp.tscn`. En la práctica, el jugador solo cambia su `visual_scene` y sus ataques.
-- **Skin:** en `main.tscn`, propiedad `skin_path` del nodo `Player` (ahora `res://assets/characters/skins/gerald`), o por código con `visual.load_skin("user://skins/mi_skin")`.
+- **Skin:** se elige en la pantalla de selección. Cualquier carpeta con `head.png`, `body.png`, `arm.png` y `leg.png` (más `skin.json` opcional) en `assets/characters/skins/` o en la carpeta de skins de jugadores aparece ahí sola. El botón "Abrir la carpeta de skins de jugadores" muestra dónde está. Si se abre `main.tscn` directamente con F6, se usa el `skin_path` del nodo `Player`.
 
 ## Capas de física
 

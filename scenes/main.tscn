@@ -29,4 +29,4 @@ offset_top = 16.0
 offset_right = 1896.0
 offset_bottom = 52.0
 theme_override_font_sizes/font_size = 22
-text = "A / D o ← / → : moverse     W / ↑ / Espacio : saltar     S / ↓ : agacharse     J : puñetazo     K : patada   (agachado o en el aire: golpes distintos)"
+text = "A / D o ← / → : moverse     W / ↑ / Espacio : saltar     S / ↓ : agacharse     J : puñetazo     K : patada   (agachado o en el aire: golpes distintos)     Esc : elegir personaje"

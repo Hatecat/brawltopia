@@ -16,8 +16,12 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 config/name="Brawltopia"
 config/description="Prototipo de juego de lucha 2D - Etapa 1: movimiento y plataformas."
-run/main_scene="res://scenes/main.tscn"
+run/main_scene="res://scenes/ui/character_select.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
+
+[autoload]
+
+GameState="*res://scripts/game_state.gd"
 
 [display]
 

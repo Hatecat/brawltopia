@@ -1,8 +1,9 @@
 extends Node2D
-## Escena principal: une el escenario y el jugador.
+## Escena de pelea: une el escenario, el jugador y la cámara.
 ##
-## Por ahora solo hace una cosa: si el jugador cae fuera del escenario,
-## lo devuelve al punto de aparición. Así puedes probar sin reiniciar.
+## - Viste al jugador con la skin elegida en la pantalla de selección (GameState).
+## - Si el jugador cae fuera del escenario, lo devuelve al punto de aparición.
+## - Esc vuelve a la pantalla de selección de personaje.
 
 ## Si el jugador baja de esta altura (px), reaparece.
 @export var fall_limit_y: float = 1000.0
@@ -12,7 +13,14 @@ extends Node2D
 
 
 func _ready() -> void:
+	if GameState.selected_skin_path != "" and player.visual and player.visual.has_method("load_skin"):
+		player.visual.load_skin(GameState.selected_skin_path)
 	_respawn_player()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		GameState.go_to_character_select()
 
 
 func _physics_process(_delta: float) -> void:
