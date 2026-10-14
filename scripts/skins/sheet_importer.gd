@@ -75,7 +75,7 @@ static func import_sheet(sheet: Image, skin_dir: String, left_side: bool = false
 	var result := {}
 	for part: String in named:
 		var piece := _cut_piece(img, named[part], labels, lw, lh)
-		var pf := _pivot_and_factor(part, piece)
+		var pf := _pivot_and_factor(part, piece, left_side)
 		var pivot: Vector2 = pf[0]
 		var factor: float = pf[1]
 		var size := Vector2i(maxi(1, roundi(piece.get_width() * factor)), maxi(1, roundi(piece.get_height() * factor)))
@@ -248,7 +248,7 @@ static func _cut_piece(img: Image, box: Dictionary, labels: PackedInt32Array, lw
 
 
 ## Punto de unión (px del recorte) y factor de escala hasta ART_SCALE px por px de juego.
-static func _pivot_and_factor(part: String, piece: Image) -> Array:
+static func _pivot_and_factor(part: String, piece: Image, facing_left: bool = false) -> Array:
 	var h := piece.get_height()
 	var spec: Dictionary = RigVisualScript.PART_SPECS[part]
 	var size: Vector2 = spec["size"]
@@ -259,11 +259,83 @@ static func _pivot_and_factor(part: String, piece: Image) -> Array:
 		var span := _row_span(piece, h * 0.08)
 		var pivot := Vector2((span.x + span.y) / 2.0, (span.y - span.x) / 2.0)
 		return [pivot, (size.y - spec_pivot.y) * ART_SCALE / (h - pivot.y)]
-	# head, body: ajustar por alto; unión abajo (cuello) o a la altura de la cintura.
+	if part == "head":
+		# La cabeza se mide desde arriba hasta el cuello (no hasta la punta del pelo),
+		# y la unión va en el centro del cuello.
+		var top := _first_solid_row(piece)
+		var neck := _find_neck(piece, facing_left)
+		var length := float(neck["bottom"] - top + 1)
+		var head_factor := size.y * ART_SCALE / length
+		var pivot_y := top + length * spec_pivot.y / size.y
+		# Centro del cuello un poco arriba del corte (si el corte es diagonal, la última
+		# fila es solo una punta).
+		var probe_y: float = neck["bottom"] - length * 0.05
+		return [Vector2(_segment_near(piece, probe_y, neck["x"]), pivot_y), head_factor]
+	# body: ajustar por alto; unión a la altura de la cintura.
 	var factor := size.y * ART_SCALE / h
 	var y := h * spec_pivot.y / size.y
 	var span := _row_span(piece, minf(y, h * 0.97))
 	return [Vector2((span.x + span.y) / 2.0, y), factor]
+
+
+## Busca el cuello: recorre la cabeza de abajo hacia arriba y toma la primera forma
+## que no esté en la parte de atrás. Lo que cuelga atrás (coleta, trenza, pelo largo)
+## se ignora, porque el cuello siempre está bajo la cara. Devuelve {"bottom": fila, "x": centro}.
+static func _find_neck(piece: Image, facing_left: bool) -> Dictionary:
+	var used := piece.get_used_rect()
+	var min_width := piece.get_width() * 0.06          # ignorar mechones finos
+	for y in range(used.end.y - 1, used.position.y + int(used.size.y * 0.4), -1):
+		var best_x := -1.0
+		var best_front := -1.0
+		for seg: Vector2 in _row_segments(piece, y):
+			if seg.y - seg.x < min_width:
+				continue
+			var center := (seg.x + seg.y) / 2.0
+			var front := (center - used.position.x) / used.size.x   # 0 = atrás, 1 = cara
+			if facing_left:
+				front = 1.0 - front
+			if front >= 0.35 and front > best_front:
+				best_front = front
+				best_x = center
+		if best_x >= 0.0:
+			return {"bottom": y, "x": best_x}
+	var span := _row_span(piece, used.end.y - 1)
+	return {"bottom": used.end.y - 1, "x": (span.x + span.y) / 2.0}
+
+
+## Centro del tramo de la fila y más cercano a x.
+static func _segment_near(piece: Image, y: float, x: float) -> float:
+	var best := x
+	var best_dist := INF
+	for seg: Vector2 in _row_segments(piece, y):
+		var dist := 0.0 if (x >= seg.x and x <= seg.y) else minf(absf(seg.x - x), absf(seg.y - x))
+		if dist < best_dist:
+			best_dist = dist
+			best = (seg.x + seg.y) / 2.0
+	return best
+
+
+## Primera fila con pieza (alfa > 50 %).
+static func _first_solid_row(piece: Image) -> int:
+	for y in piece.get_height():
+		if not _row_segments(piece, y).is_empty():
+			return y
+	return 0
+
+
+## Tramos continuos con pieza (alfa > 50 %) en una fila: [Vector2(inicio, fin), ...].
+static func _row_segments(piece: Image, y: float) -> Array[Vector2]:
+	var row := clampi(int(y), 0, piece.get_height() - 1)
+	var segs: Array[Vector2] = []
+	var start := -1
+	for x in piece.get_width() + 1:
+		var solid := x < piece.get_width() and piece.get_pixel(x, row).a > 0.5
+		if solid and start < 0:
+			start = x
+		elif not solid and start >= 0:
+			segs.append(Vector2(start, x))
+			start = -1
+	return segs
 
 
 ## Primera y última columna con pieza (alfa > 50 %) en una fila.
