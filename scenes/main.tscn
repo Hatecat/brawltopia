@@ -1,29 +1,29 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://b31q81eb38ttu"]
 
-[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="Script" uid="uid://uuvspdn7ldkn" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/stages/test_stage.tscn" id="2_stage"]
 [ext_resource type="PackedScene" path="res://scenes/characters/player.tscn" id="3_player"]
-[ext_resource type="Script" path="res://scripts/fight_camera.gd" id="4_camera"]
+[ext_resource type="Script" uid="uid://bt0dc6k6pou46" path="res://scripts/fight_camera.gd" id="4_camera"]
 
-[node name="Main" type="Node2D"]
+[node name="Main" type="Node2D" unique_id=506266507]
 script = ExtResource("1_main")
 
-[node name="TestStage" parent="." instance=ExtResource("2_stage")]
+[node name="TestStage" parent="." unique_id=1876664858 instance=ExtResource("2_stage")]
 
-[node name="SpawnPoint" type="Marker2D" parent="."]
+[node name="SpawnPoint" type="Marker2D" parent="." unique_id=677361431]
 position = Vector2(640, 520)
 
-[node name="Player" parent="." instance=ExtResource("3_player")]
+[node name="Player" parent="." unique_id=1802771287 instance=ExtResource("3_player")]
 position = Vector2(640, 520)
 skin_path = "res://assets/characters/skins/gerald"
 
-[node name="FightCamera" type="Camera2D" parent="."]
+[node name="FightCamera" type="Camera2D" parent="." unique_id=741536136]
 position = Vector2(640, 480)
 script = ExtResource("4_camera")
 
-[node name="UI" type="CanvasLayer" parent="."]
+[node name="UI" type="CanvasLayer" parent="." unique_id=1541833510]
 
-[node name="ControlsHint" type="Label" parent="UI"]
+[node name="ControlsHint" type="Label" parent="UI" unique_id=605424629]
 offset_left = 24.0
 offset_top = 16.0
 offset_right = 1896.0
