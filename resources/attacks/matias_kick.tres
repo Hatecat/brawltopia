@@ -11,3 +11,5 @@ active_start_frame = 10
 active_end_frame = 19
 hitbox_offset = Vector2(24, -74)
 hitbox_size = Vector2(30, 22)
+crouching = false
+aerial = false

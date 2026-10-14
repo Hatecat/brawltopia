@@ -1,0 +1,54 @@
+{
+  "name": "gerald",
+  "parts": {
+    "head": {
+      "pivot": [
+        30.6,
+        72.0
+      ],
+      "scale": 0.25
+    },
+    "torso": {
+      "pivot": [
+        40.5,
+        104.0
+      ],
+      "scale": 0.25
+    },
+    "pelvis": {
+      "pivot": [
+        44.0,
+        8.0
+      ],
+      "scale": 0.25
+    },
+    "upper_arm": {
+      "pivot": [
+        13.2,
+        11.0
+      ],
+      "scale": 0.25
+    },
+    "forearm": {
+      "pivot": [
+        11.2,
+        9.6
+      ],
+      "scale": 0.25
+    },
+    "thigh": {
+      "pivot": [
+        15.9,
+        14.0
+      ],
+      "scale": 0.25
+    },
+    "shin": {
+      "pivot": [
+        17.3,
+        15.4
+      ],
+      "scale": 0.25
+    }
+  }
+}

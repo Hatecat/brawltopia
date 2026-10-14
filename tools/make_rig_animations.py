@@ -41,11 +41,16 @@ SHIN_LEN = 21        # rodilla → planta del pie
 AIR_HIPS_Y = -41     # altura de la cadera en el aire
 
 
+# Talón y punta de la zapatilla, en el sistema de la rodilla (x hacia adelante, y hacia abajo).
+SOLE_POINTS = [(-4, SHIN_LEN), (7, SHIN_LEN)]
+
+
 def leg_drop(hip_deg, knee_deg):
-    """Distancia vertical desde el centro de la cadera hasta la planta del pie."""
+    """Distancia vertical desde el centro de la cadera hasta el punto más bajo de la zapatilla."""
     a = math.radians(hip_deg)
     b = math.radians(hip_deg + knee_deg)
-    return HIP_JOINT_Y + THIGH_LEN * math.cos(a) + SHIN_LEN * math.cos(b)
+    knee_y = HIP_JOINT_Y + THIGH_LEN * math.cos(a)
+    return max(knee_y + x * math.sin(b) + y * math.cos(b) for x, y in SOLE_POINTS)
 
 
 def hips_y(pose, air):
@@ -62,6 +67,25 @@ GUARD = dict(torso=6, head=-6, shoulder_f=-30, elbow_f=-110, shoulder_b=-18, elb
 
 def pose(**changes):
     p = dict(GUARD)
+    p.update(changes)
+    return p
+
+
+# Agachado: muslos hacia adelante y pantorrillas verticales (sin tobillo, así el pie queda plano).
+CROUCH = pose(torso=28, head=-22, hip_f=-86, knee_f=86, hip_b=-84, knee_b=84,
+              shoulder_f=-45, elbow_f=-100, shoulder_b=-30, elbow_b=-110)
+AIR = pose(hip_f=-45, knee_f=70, hip_b=10, knee_b=60, torso=10,
+           shoulder_f=-60, elbow_f=-90, shoulder_b=-40, elbow_b=-100)
+
+
+def crouch(**changes):
+    p = dict(CROUCH)
+    p.update(changes)
+    return p
+
+
+def air(**changes):
+    p = dict(AIR)
     p.update(changes)
     return p
 
@@ -107,6 +131,46 @@ ANIMS = {
         (21 / 60, pose(hip_f=-70, knee_f=85, torso=-4, hip_b=6, knee_b=10)),
         (28 / 60, pose()),
     ]),
+    # Agachado (en bucle, respiración leve).
+    "crouch": (0.8, True, 2, False, [
+        (0.0, CROUCH),
+        (0.4, crouch(torso=31, elbow_f=-95, elbow_b=-105)),
+        (0.8, CROUCH),
+    ]),
+    # Puñetazo agachado: 18 cuadros. Activo 5-10.
+    "crouch_punch": (18 / 60, False, 1, False, [
+        (0 / 60, CROUCH),
+        (4 / 60, crouch(torso=24, shoulder_f=-25, elbow_f=-135)),
+        (5 / 60, crouch(torso=34, shoulder_f=-112, elbow_f=-4, shoulder_b=-20, elbow_b=-120)),
+        (10 / 60, crouch(torso=34, shoulder_f=-112, elbow_f=-4, shoulder_b=-20, elbow_b=-120)),
+        (18 / 60, CROUCH),
+    ]),
+    # Barrida (patada agachado): 26 cuadros. Activo 8-15.
+    "crouch_kick": (26 / 60, False, 1, False, [
+        (0 / 60, CROUCH),
+        (6 / 60, crouch(hip_f=-95, knee_f=145, torso=22)),
+        (8 / 60, crouch(hip_f=-58, knee_f=0, torso=14, shoulder_f=-10, elbow_f=-70, shoulder_b=20, elbow_b=-40)),
+        (15 / 60, crouch(hip_f=-58, knee_f=0, torso=14, shoulder_f=-10, elbow_f=-70, shoulder_b=20, elbow_b=-40)),
+        (26 / 60, CROUCH),
+    ]),
+    # Puñetazo aéreo: 20 cuadros. Activo 5-12. Termina antes si aterriza.
+    "air_punch": (20 / 60, False, 1, True, [
+        (0 / 60, AIR),
+        (4 / 60, air(shoulder_f=-30, elbow_f=-130, torso=8)),
+        (5 / 60, air(shoulder_f=-100, elbow_f=-4, torso=16, shoulder_b=-10, elbow_b=-110)),
+        (12 / 60, air(shoulder_f=-100, elbow_f=-4, torso=16, shoulder_b=-10, elbow_b=-110)),
+        (20 / 60, AIR),
+    ]),
+    # Patada voladora: 30 cuadros. Activo 7-18. Termina antes si aterriza.
+    "air_kick": (30 / 60, False, 1, True, [
+        (0 / 60, AIR),
+        (5 / 60, air(hip_f=-70, knee_f=100, torso=0)),
+        (7 / 60, air(hip_f=-82, knee_f=2, hip_b=28, knee_b=75, torso=-14, head=6,
+                     shoulder_f=-20, elbow_f=-110, shoulder_b=35, elbow_b=-30)),
+        (18 / 60, air(hip_f=-82, knee_f=2, hip_b=28, knee_b=75, torso=-14, head=6,
+                      shoulder_f=-20, elbow_f=-110, shoulder_b=35, elbow_b=-30)),
+        (30 / 60, AIR),
+    ]),
 }
 
 
@@ -151,6 +215,41 @@ with open(OUT, "w") as f:
     f.write(f'[gd_resource type="AnimationLibrary" load_steps={len(subs) + 1} format=3]\n\n')
     f.write("\n".join(subs))
     f.write("\n[resource]\n_data = {\n" + ",\n".join(data) + "\n}\n")
+
+def rot(v, deg):
+    a = math.radians(deg)
+    return (v[0] * math.cos(a) - v[1] * math.sin(a), v[0] * math.sin(a) + v[1] * math.cos(a))
+
+
+def add(a, b):
+    return (a[0] + b[0], a[1] + b[1])
+
+
+def fist_front(p, hy):
+    """Centro del puño delantero, relativo a los pies del personaje (mirando a la derecha)."""
+    v = rot((0, 13), p.get("elbow_f", 0))            # puño en el sistema del codo
+    v = rot(add((0, 12), v), p.get("shoulder_f", 0))  # codo en el sistema del hombro
+    v = rot(add((1, -20), v), p.get("torso", 0))      # hombro en el sistema del torso
+    return add((0, hy), v)
+
+
+def foot_front(p, hy):
+    """Centro de la zapatilla delantera, relativo a los pies del personaje."""
+    v = rot((2, 18), p.get("knee_f", 0))
+    v = rot(add((0, 14), v), p.get("hip_f", 0))
+    return add((0, hy), add((2, 3), v))
+
+
 print(f"{len(ANIMS)} animaciones → {os.path.relpath(OUT, ROOT)}")
 for name, (_, _, _, air, keys) in ANIMS.items():
     print(f"  {name:6s} cadera y: {[hips_y(p, air) for _, p in keys]}")
+
+# Posición del puño y el pie en el cuadro activo de cada ataque (para la hitbox en AttackData).
+print("Puntas en el primer cuadro activo (x, y):")
+for name in ("punch", "kick", "crouch_punch", "crouch_kick", "air_punch", "air_kick"):
+    _, _, _, air_flag, keys = ANIMS[name]
+    p = keys[2][1]
+    hy = hips_y(p, air_flag)
+    fx, fy = fist_front(p, hy)
+    ox, oy = foot_front(p, hy)
+    print(f"  {name:13s} puño ({fx:5.1f}, {fy:5.1f})   pie ({ox:5.1f}, {oy:5.1f})")

@@ -1,14 +1,19 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="PackedScene" path="res://scenes/characters/visuals/rig_visual.tscn" id="2_visual"]
 [ext_resource type="Resource" path="res://resources/attacks/base_punch.tres" id="3_punch"]
 [ext_resource type="Resource" path="res://resources/attacks/base_kick.tres" id="4_kick"]
+[ext_resource type="Resource" path="res://resources/attacks/base_crouch_punch.tres" id="5_cpunch"]
+[ext_resource type="Resource" path="res://resources/attacks/base_crouch_kick.tres" id="6_ckick"]
+[ext_resource type="Resource" path="res://resources/attacks/base_air_punch.tres" id="7_apunch"]
+[ext_resource type="Resource" path="res://resources/attacks/base_air_kick.tres" id="8_akick"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
 size = Vector2(40, 80)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hurtbox"]
+resource_local_to_scene = true
 size = Vector2(40, 80)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hitbox"]
@@ -22,6 +27,10 @@ script = ExtResource("1_player")
 visual_scene = ExtResource("2_visual")
 punch_attack = ExtResource("3_punch")
 kick_attack = ExtResource("4_kick")
+crouch_punch_attack = ExtResource("5_cpunch")
+crouch_kick_attack = ExtResource("6_ckick")
+air_punch_attack = ExtResource("7_apunch")
+air_kick_attack = ExtResource("8_akick")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -40)

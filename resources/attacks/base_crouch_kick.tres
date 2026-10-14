@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="AttackData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/attack_data.gd" id="1_attack"]
+
+[resource]
+script = ExtResource("1_attack")
+animation = &"crouch_kick"
+damage = 7.0
+total_frames = 26
+active_start_frame = 8
+active_end_frame = 15
+hitbox_offset = Vector2(28, -7)
+hitbox_size = Vector2(20, 10)
+crouching = true
+aerial = false

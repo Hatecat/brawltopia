@@ -9,3 +9,7 @@
 visual_scene = ExtResource("2_visual")
 punch_attack = ExtResource("3_punch")
 kick_attack = ExtResource("4_kick")
+crouch_punch_attack = null
+crouch_kick_attack = null
+air_punch_attack = null
+air_kick_attack = null

@@ -6,9 +6,11 @@ Juego de lucha 2D tipo *platform fighter*, inspirado en Super Smash Bros. y M.U.
 
 - Escenario con suelo y dos plataformas que se atraviesan desde abajo.
 - Jugador con movimiento horizontal, salto y gravedad. Si cae fuera del escenario, reaparece.
-- **Personaje por piezas:** esqueleto de articulaciones con 7 imágenes intercambiables (una *skin*) y animaciones de quieto, caminar, salto, caída, puñetazo y patada. Las piezas actuales son provisorias. Ver `docs/skin_spec.md`.
+- **Agacharse** (hurtbox más baja) y **ataques en tres situaciones:** de pie, agachado (puñetazo bajo y barrida) y en el aire (puñetazo y patada voladora; se puede seguir moviendo y el ataque termina al aterrizar).
+- **Personaje por piezas:** esqueleto de articulaciones con 7 imágenes intercambiables (una *skin*) y 11 animaciones. La skin actual es **gerald**, generada con Copilot e importada con `tools/import_parts_sheet.py`. Ver `docs/skin_spec.md`.
+- **Skins asimétricas:** cada pieza puede tener una versión para mirar a la izquierda (`_left`) y otra para la extremidad de atrás (`_back`).
 - **Skins de jugadores:** se cargan desde una carpeta (`user://skins/<nombre>/`). Solo se aceptan PNG de hasta 1024 px; las piezas que falten se toman de la skin por defecto.
-- **Ataques definidos como datos** (`AttackData`), con tiempos en cuadros de juego (60 por segundo): preparación, cuadros activos de la caja de golpe (hitbox) y recuperación. Por ahora solo en el suelo y sin rival que reciba el daño.
+- **Ataques definidos como datos** (`AttackData`), con tiempos en cuadros de juego (60 por segundo): preparación, cuadros activos de la caja de golpe (hitbox) y recuperación. Todavía no hay un rival que reciba el daño.
 - Personaje de prueba cuadro a cuadro (Matías), disponible como alternativa: `scenes/characters/player_matias_temp.tscn`.
 
 ## Cómo abrirlo
@@ -25,8 +27,11 @@ Para ver las cajas de colisión y de golpe mientras juegas: menú **Depurar → 
 |-----------|-------------------------|
 | Moverse   | A / D o ← / →           |
 | Saltar    | W, ↑ o Espacio          |
+| Agacharse | S o ↓ (mantener)        |
 | Puñetazo  | J                       |
 | Patada    | K                       |
+
+Puñetazo y patada cambian según la situación: de pie, agachado o en el aire.
 
 ## Estructura
 
@@ -43,6 +48,7 @@ scenes/
 resources/attacks/                 datos de cada ataque (.tres)
 assets/characters/
   skins/default/                   piezas provisorias (skin por defecto)
+  skins/gerald/                    skin generada con Copilot (+ skin.json)
   rig/rig_animations.tres          animaciones del esqueleto (generadas)
   matias_temp/                     animaciones temporales de Matías
 scripts/
@@ -57,12 +63,13 @@ docs/
   skin_spec.md                     especificación de las piezas
   skin_template.png                plantilla visual de las piezas
   prompt_copilot.md                prompt para generar las piezas con IA
+tmp_assets/                        imágenes de origen (hojas de referencia y de piezas)
 ```
 
 ## Cambiar de personaje o de skin
 
 - **Personaje:** en `main.tscn`, el nodo `Player` es una instancia de `player.tscn`. Para probar a Matías, reemplázalo por `player_matias_temp.tscn`. En la práctica, el jugador solo cambia su `visual_scene` y sus ataques.
-- **Skin:** en `rig_visual.tscn`, propiedad `skin_path` del nodo raíz, o por código con `visual.load_skin("user://skins/mi_skin")`.
+- **Skin:** en `main.tscn`, propiedad `skin_path` del nodo `Player` (ahora `res://assets/characters/skins/gerald`), o por código con `visual.load_skin("user://skins/mi_skin")`.
 
 ## Capas de física
 

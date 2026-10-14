@@ -28,6 +28,12 @@ extends Resource
 @export var hitbox_offset: Vector2 = Vector2(30, -55)
 @export var hitbox_size: Vector2 = Vector2(24, 16)
 
+## Ataque hecho agachado: el personaje sigue agachado (hurtbox baja) mientras dura.
+@export var crouching: bool = false
+
+## Ataque aéreo: se puede seguir moviendo en el aire y termina al aterrizar.
+@export var aerial: bool = false
+
 
 func is_active_frame(frame: int) -> bool:
 	return frame >= active_start_frame and frame <= active_end_frame

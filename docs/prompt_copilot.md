@@ -46,6 +46,21 @@ Same character and same style as before. Draw ONLY the [THIGH]: [from hip to kne
 
 Cambia lo que está entre corchetes por la pieza que necesites, usando su descripción de la lista anterior.
 
+## Personajes asimétricos (opcional)
+
+Si el personaje tiene detalles de un solo lado (un tatuaje, un parche, una hombrera), pide una **segunda hoja** con las mismas piezas mirando a la izquierda. Agrega al principio del prompt:
+
+```
+Same character and same style as the previous sheet, but every piece faces LEFT (mirror view), showing the other side of the body. Keep the same layout and order.
+```
+
 ## Después
 
-Sube las imágenes a `tmp_assets/` en la rama `dev`. A partir de ahí se quita el magenta, se separa y se ajusta cada pieza a la especificación (`docs/skin_spec.md`) y se guardan como una skin nueva en `assets/characters/skins/`.
+Sube las imágenes a `tmp_assets/` en la rama `dev` y conviértelas en una skin:
+
+```
+python3 tools/import_parts_sheet.py tmp_assets/<hoja>.png <nombre>
+python3 tools/import_parts_sheet.py tmp_assets/<hoja_izquierda>.png <nombre> --side left   (opcional)
+```
+
+El importador quita el magenta, separa las piezas, calcula el punto de unión y la escala de cada una y guarda la skin en `assets/characters/skins/<nombre>/`.
