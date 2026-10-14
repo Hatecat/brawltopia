@@ -15,12 +15,16 @@ extends CharacterBody2D
 # así todos los objetos del juego comparten el mismo valor.
 var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 
+# El dibujo animado. @onready lo busca cuando la escena ya está lista.
+@onready var sprite: AnimatedSprite2D = $Sprite
+
 
 func _physics_process(delta: float) -> void:
 	_apply_gravity(delta)
 	_handle_jump()
 	_handle_horizontal_movement(delta)
 	move_and_slide()
+	_update_animation()
 
 
 func _apply_gravity(delta: float) -> void:
@@ -43,3 +47,21 @@ func _handle_horizontal_movement(delta: float) -> void:
 		velocity.x = move_toward(velocity.x, direction * move_speed, acceleration * delta)
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
+
+
+func _update_animation() -> void:
+	# Mirar hacia donde se mueve. Los dibujos miran a la derecha,
+	# así que hacia la izquierda los volteamos (flip_h).
+	if velocity.x < -1.0:
+		sprite.flip_h = true
+	elif velocity.x > 1.0:
+		sprite.flip_h = false
+
+	# Elegir la animación según el estado. play() no reinicia
+	# la animación si ya se está reproduciendo.
+	if not is_on_floor():
+		sprite.play("jump" if velocity.y < 0.0 else "fall")
+	elif absf(velocity.x) > 10.0:
+		sprite.play("walk")
+	else:
+		sprite.play("idle")

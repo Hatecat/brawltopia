@@ -7,6 +7,7 @@ Juego de lucha 2D tipo *platform fighter*, inspirado en Super Smash Bros. y M.U.
 - Escenario con suelo y dos plataformas que se atraviesan desde abajo.
 - Un jugador con movimiento horizontal, salto y gravedad.
 - Si el jugador cae fuera del escenario, reaparece.
+- Personaje de prueba animado (quieto, caminar, salto y caída) recortado de una hoja de presentación. Es temporal: ver `assets/characters/matias_temp/`.
 
 ## Cómo abrirlo
 
@@ -29,8 +30,10 @@ scenes/
   main.tscn                    escena principal: escenario + jugador
   stages/test_stage.tscn       suelo y dos plataformas
   characters/player.tscn       cuerpo, colisión y dibujo del jugador
+assets/characters/
+  matias_temp/                 animaciones temporales del personaje de prueba
 scripts/
-  player.gd                    movimiento, salto y gravedad
+  player.gd                    movimiento, salto, gravedad y animaciones
   main.gd                      reaparición al caer del escenario
 ```
 
