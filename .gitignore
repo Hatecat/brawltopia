@@ -1,0 +1,17 @@
+# Godot 4: caché e importaciones que el editor regenera solo
+.godot/
+
+# Exportaciones (builds del juego)
+/build/
+/export/
+*.pck
+*.exe
+*.x86_64
+*.apk
+
+# Configuración local de exportación (puede contener contraseñas)
+export_credentials.cfg
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
