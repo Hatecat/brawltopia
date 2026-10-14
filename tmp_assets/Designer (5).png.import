@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c6j826cl6jrpb"
-path="res://.godot/imported/leg_left.png-c8f45022cb6c5681645ba36259e534cd.ctex"
+uid="uid://bcq46rh2rmv3a"
+path="res://.godot/imported/Designer (5).png-9d0c3d16542435ef73fc6f8ccf8c41fe.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/skins/kren/leg_left.png"
-dest_files=["res://.godot/imported/leg_left.png-c8f45022cb6c5681645ba36259e534cd.ctex"]
+source_file="res://tmp_assets/Designer (5).png"
+dest_files=["res://.godot/imported/Designer (5).png-9d0c3d16542435ef73fc6f8ccf8c41fe.ctex"]
 
 [params]
 
