@@ -82,7 +82,7 @@ Los valores de arriba son las posiciones normales; las que falten se quedan así
 - **Mezclar ángulos:** todas las piezas deben estar de perfil. Un cuerpo en tres cuartos (con el pecho hacia la cámara) junto a piernas y cabeza de perfil se ve torcido.
 - **Muslos en el cuerpo:** el cuerpo termina en la línea de la cadera. Si trae el comienzo de los muslos, al mover la pierna quedan muslos dobles.
 - **Mano abierta:** el brazo debe terminar en un puño; si no, los golpes parecen cachetadas.
-- **Pelo bajo el cuello:** una coleta que cuelga por debajo del cuello confunde el cálculo del punto de unión de la cabeza.
+- **Pelo bajo el cuello:** el importador ignora lo que cuelga por **detrás** de la cabeza (coletas, trenzas, pelo largo) y busca el cuello bajo la cara, así que eso está bien. Lo que sí lo confunde es pelo o barba que cuelgue por **delante**, más abajo que el cuello.
 
 ## Dónde van las skins
 

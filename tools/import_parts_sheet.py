@@ -71,10 +71,60 @@ def width_at(mask, y):
     return (xs.min(), xs.max() + 1) if len(xs) else (0, mask.shape[1])
 
 
-def pivot_and_factor(name, mask):
+def row_segments(mask, y):
+    """Tramos continuos con pieza en una fila: [(inicio, fin), ...]."""
+    row = mask[int(np.clip(y, 0, mask.shape[0] - 1))]
+    segs, start = [], None
+    for x, v in enumerate(list(row) + [False]):
+        if v and start is None:
+            start = x
+        elif not v and start is not None:
+            segs.append((start, x))
+            start = None
+    return segs
+
+
+def find_neck(mask, facing_left):
+    """Cuello: de abajo hacia arriba, la primera forma que no está en la parte de atrás
+    (lo que cuelga atrás, como una coleta, se ignora). Igual que SheetImporter._find_neck."""
+    ys, xs = np.where(mask)
+    top, bottom, left, right = ys.min(), ys.max(), xs.min(), xs.max() + 1
+    min_width = mask.shape[1] * 0.06
+    for y in range(bottom, top + int((bottom - top + 1) * 0.4), -1):
+        best = None
+        for a, b in row_segments(mask, y):
+            if b - a < min_width:
+                continue
+            front = ((a + b) / 2 - left) / (right - left)
+            if facing_left:
+                front = 1 - front
+            if front >= 0.35 and (best is None or front > best[0]):
+                best = (front, (a + b) / 2)
+        if best:
+            return y, best[1], top
+    x0, x1 = width_at(mask, bottom)
+    return bottom, (x0 + x1) / 2, top
+
+
+def segment_near(mask, y, x):
+    best, best_d = x, float("inf")
+    for a, b in row_segments(mask, y):
+        d = 0 if a <= x <= b else min(abs(a - x), abs(b - x))
+        if d < best_d:
+            best, best_d = (a + b) / 2, d
+    return best
+
+
+def pivot_and_factor(name, mask, facing_left=False):
     """Punto de unión (px de la imagen recortada) y factor para llevarla a ART_SCALE px por px de juego."""
     h, w = mask.shape
     (gw, gh), (px, py), _ = PARTS[name]
+    if name == "head":
+        # Desde arriba hasta el cuello (no hasta la punta del pelo); unión en el centro del cuello.
+        bottom, neck_x, top = find_neck(mask, facing_left)
+        length = bottom - top + 1
+        pivot_y = top + length * py / gh
+        return (segment_near(mask, bottom - length * 0.05, neck_x), pivot_y), gh * ART_SCALE / length
     if name in ("arm", "leg"):
         # Extremidad recta colgando: la unión es el centro del extremo redondeado de arriba,
         # y el largo desde la unión hasta el final (puño / planta del pie) define la escala.
@@ -147,7 +197,7 @@ def main():
             own = ndimage.binary_dilation(lab[y0:y1, x0:x1] == idx, iterations=pad)
             crop[..., 3] = np.where(own, crop[..., 3], 0)      # quitar restos de otras piezas
             mask = crop[..., 3] > 128
-            (pvx, pvy), f = pivot_and_factor(name, mask)
+            (pvx, pvy), f = pivot_and_factor(name, mask, args.side == "left")
             img = Image.fromarray(crop)
             size = (max(1, round(img.width * f)), max(1, round(img.height * f)))
             img = img.resize(size, Image.LANCZOS)
