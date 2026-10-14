@@ -1,0 +1,73 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/visuals/rig_visual.gd" id="1_rig"]
+[ext_resource type="AnimationLibrary" path="res://assets/characters/rig/rig_animations.tres" id="2_anims"]
+
+[node name="RigVisual" type="Node2D"]
+texture_filter = 4
+script = ExtResource("1_rig")
+
+[node name="Rig" type="Node2D" parent="."]
+
+[node name="Hips" type="Node2D" parent="Rig"]
+position = Vector2(0, -38)
+
+[node name="HipBack" type="Node2D" parent="Rig/Hips"]
+position = Vector2(-2, 3)
+
+[node name="Thigh" type="Sprite2D" parent="Rig/Hips/HipBack"]
+
+[node name="Knee" type="Node2D" parent="Rig/Hips/HipBack"]
+position = Vector2(0, 14)
+
+[node name="Shin" type="Sprite2D" parent="Rig/Hips/HipBack/Knee"]
+
+[node name="Pelvis" type="Sprite2D" parent="Rig/Hips"]
+
+[node name="Torso" type="Node2D" parent="Rig/Hips"]
+
+[node name="ShoulderBack" type="Node2D" parent="Rig/Hips/Torso"]
+position = Vector2(-1, -20)
+
+[node name="UpperArm" type="Sprite2D" parent="Rig/Hips/Torso/ShoulderBack"]
+
+[node name="Elbow" type="Node2D" parent="Rig/Hips/Torso/ShoulderBack"]
+position = Vector2(0, 12)
+
+[node name="Forearm" type="Sprite2D" parent="Rig/Hips/Torso/ShoulderBack/Elbow"]
+
+[node name="TorsoSprite" type="Sprite2D" parent="Rig/Hips/Torso"]
+
+[node name="Neck" type="Node2D" parent="Rig/Hips/Torso"]
+z_index = 1
+position = Vector2(1, -24)
+
+[node name="Head" type="Sprite2D" parent="Rig/Hips/Torso/Neck"]
+
+[node name="ShoulderFront" type="Node2D" parent="Rig/Hips/Torso"]
+z_index = 2
+position = Vector2(1, -20)
+
+[node name="UpperArm" type="Sprite2D" parent="Rig/Hips/Torso/ShoulderFront"]
+
+[node name="Elbow" type="Node2D" parent="Rig/Hips/Torso/ShoulderFront"]
+position = Vector2(0, 12)
+
+[node name="Forearm" type="Sprite2D" parent="Rig/Hips/Torso/ShoulderFront/Elbow"]
+
+[node name="HipFront" type="Node2D" parent="Rig/Hips"]
+z_index = 1
+position = Vector2(2, 3)
+
+[node name="Thigh" type="Sprite2D" parent="Rig/Hips/HipFront"]
+
+[node name="Knee" type="Node2D" parent="Rig/Hips/HipFront"]
+position = Vector2(0, 14)
+
+[node name="Shin" type="Sprite2D" parent="Rig/Hips/HipFront/Knee"]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": ExtResource("2_anims")
+}
+autoplay = "idle"

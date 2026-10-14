@@ -1,9 +1,12 @@
 extends CharacterBody2D
-## Jugador controlable: movimiento, salto, gravedad, animaciones y ataques.
+## Jugador controlable: movimiento, salto, gravedad y ataques.
 ##
 ## CharacterBody2D no se mueve solo: cada frame de física calculamos
 ## `velocity` y llamamos a move_and_slide(), que mueve el cuerpo,
 ## lo detiene al chocar y actualiza is_on_floor().
+##
+## El dibujo vive aparte (un CharacterVisual). Este script solo le pide
+## "reproduce tal animación" y "mira hacia tal lado".
 
 ## Se emite cuando un ataque toca la hurtbox de otro personaje.
 signal hit_landed(target: Area2D, attack: AttackData)
@@ -13,6 +16,9 @@ signal hit_landed(target: Area2D, attack: AttackData)
 @export var acceleration: float = 3200.0   ## Qué tan rápido alcanza move_speed.
 @export var friction: float = 2800.0       ## Qué tan rápido frena al soltar.
 @export var jump_velocity: float = -900.0  ## Impulso del salto (negativo = hacia arriba).
+
+## Escena que dibuja al personaje (debe heredar de CharacterVisual).
+@export var visual_scene: PackedScene
 
 @export_group("Ataques")
 @export var punch_attack: AttackData  ## Se lanza con la acción "punch".
@@ -28,27 +34,34 @@ var facing: float = 1.0
 ## Ataque en curso, o null si no está atacando.
 var current_attack: AttackData = null
 
+## Cuadro de juego actual del ataque en curso (0 = el cuadro en que empezó).
+var attack_frame: int = 0
+
+## El dibujo del personaje (se crea en _ready a partir de visual_scene).
+var visual: CharacterVisual
+
 # Hurtboxes ya golpeadas en este ataque (para no golpear dos veces lo mismo).
 var _already_hit: Array[Area2D] = []
 
-# Nodos de la escena. @onready los busca cuando la escena ya está lista.
-@onready var sprite: AnimatedSprite2D = $Sprite
 @onready var hurtbox: Area2D = $Hurtbox
 @onready var hitbox: Area2D = $Hitbox
 @onready var hitbox_shape: CollisionShape2D = $Hitbox/CollisionShape2D
 
 
 func _ready() -> void:
-	# Conectamos señales: Godot llamará a estas funciones cuando ocurra cada evento.
-	sprite.frame_changed.connect(_on_sprite_frame_changed)
-	sprite.animation_finished.connect(_on_sprite_animation_finished)
+	if visual_scene:
+		visual = visual_scene.instantiate() as CharacterVisual
+		add_child(visual)
+		move_child(visual, 0)  # que se dibuje antes (debajo) de las cajas de depuración
 	hitbox.area_entered.connect(_on_hitbox_area_entered)
 
 
 func _physics_process(delta: float) -> void:
 	_apply_gravity(delta)
 
-	if current_attack == null:
+	if current_attack:
+		_update_attack()
+	else:
 		_handle_attack_input()
 
 	if current_attack == null:
@@ -99,16 +112,26 @@ func _handle_attack_input() -> void:
 
 func start_attack(attack: AttackData) -> void:
 	current_attack = attack
+	attack_frame = 0
 	_already_hit.clear()
 
 	# Colocar la hitbox según los datos del ataque, volteada si mira a la izquierda.
 	hitbox.position = Vector2(attack.hitbox_offset.x * facing, attack.hitbox_offset.y)
 	(hitbox_shape.shape as RectangleShape2D).size = attack.hitbox_size
-
-	sprite.flip_h = facing < 0.0
-	sprite.play(attack.animation)
-	sprite.frame = 0  # empezar siempre desde el inicio, aunque se repita el mismo ataque
 	_set_hitbox_active(attack.is_active_frame(0))
+
+	if visual:
+		visual.set_facing(facing)
+		visual.play_animation(attack.animation, true)
+
+
+func _update_attack() -> void:
+	# Un cuadro de física = un cuadro de juego (60 por segundo).
+	attack_frame += 1
+	if attack_frame >= current_attack.total_frames:
+		_end_attack()
+	else:
+		_set_hitbox_active(current_attack.is_active_frame(attack_frame))
 
 
 func _end_attack() -> void:
@@ -120,16 +143,6 @@ func _set_hitbox_active(active: bool) -> void:
 	# set_deferred: cambiar formas de física durante un callback de física
 	# debe esperar al final del frame, si no Godot avisa con un error.
 	hitbox_shape.set_deferred("disabled", not active)
-
-
-func _on_sprite_frame_changed() -> void:
-	if current_attack:
-		_set_hitbox_active(current_attack.is_active_frame(sprite.frame))
-
-
-func _on_sprite_animation_finished() -> void:
-	if current_attack and sprite.animation == current_attack.animation:
-		_end_attack()
 
 
 func _on_hitbox_area_entered(area: Area2D) -> void:
@@ -144,16 +157,13 @@ func _on_hitbox_area_entered(area: Area2D) -> void:
 
 func _update_animation() -> void:
 	# Durante un ataque, la animación la controla el propio ataque.
-	if current_attack:
+	if current_attack or visual == null:
 		return
 
-	# Los dibujos miran a la derecha; hacia la izquierda los volteamos.
-	sprite.flip_h = facing < 0.0
-
-	# play() no reinicia la animación si ya se está reproduciendo.
+	visual.set_facing(facing)
 	if not is_on_floor():
-		sprite.play("jump" if velocity.y < 0.0 else "fall")
+		visual.play_animation(&"jump" if velocity.y < 0.0 else &"fall")
 	elif absf(velocity.x) > 10.0:
-		sprite.play("walk")
+		visual.play_animation(&"walk")
 	else:
-		sprite.play("idle")
+		visual.play_animation(&"idle")

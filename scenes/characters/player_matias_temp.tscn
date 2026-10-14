@@ -1,0 +1,11 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/characters/player.tscn" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/characters/visuals/matias_sprite_visual.tscn" id="2_visual"]
+[ext_resource type="Resource" path="res://resources/attacks/matias_punch.tres" id="3_punch"]
+[ext_resource type="Resource" path="res://resources/attacks/matias_kick.tres" id="4_kick"]
+
+[node name="Player" instance=ExtResource("1_player")]
+visual_scene = ExtResource("2_visual")
+punch_attack = ExtResource("3_punch")
+kick_attack = ExtResource("4_kick")
