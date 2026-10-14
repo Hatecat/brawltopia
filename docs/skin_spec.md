@@ -77,6 +77,10 @@ Cada personaje puede tener los hombros, el cuello y las caderas en lugares disti
 
 Los valores de arriba son las posiciones normales; las que falten se quedan así. Cada articulación puede moverse como máximo 12 px desde su posición normal. **El importador las calcula solo** a partir de la forma del cuerpo de la hoja A: centra las piernas bajo la cadera y las separa según su ancho, y ubica hombros y cuello según el alto del torso.
 
+### Altura de la cadera
+
+Al importar una hoja, la cadera (`hip_front` y `hip_back`, valor Y) se ubica para que la pierna empiece justo donde termina el cuerpo (con 1,5 px escondidos bajo el borde). Si la pierna se dibujó desde la cadera con detalles arriba (una liga, un cinturón), así se ven completos. El esqueleto sube lo mismo para que los pies sigan en el suelo: el personaje queda más alto, y su zona golpeable y la hitbox de los puñetazos suben con él. Para dejar las piernas en su lugar normal, pon `3` como Y de las dos caderas.
+
 ## Errores comunes de las hojas
 
 - **Mezclar ángulos:** todas las piezas deben estar de perfil. Un cuerpo en tres cuartos (con el pecho hacia la cámara) junto a piernas y cabeza de perfil se ve torcido.

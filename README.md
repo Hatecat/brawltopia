@@ -17,6 +17,7 @@ Juego de lucha 2D tipo *platform fighter*, inspirado en Super Smash Bros. y M.U.
 - **Skins de jugadores:** se cargan desde una carpeta (`user://skins/<nombre>/`). Solo se aceptan PNG de hasta 1024 px; las piezas que falten se toman de la skin por defecto.
 - **Ataques definidos como datos** (`AttackData`), con tiempos en cuadros de juego (60 por segundo): preparación, cuadros activos de la caja de golpe (hitbox) y recuperación. Cada ataque define también el empuje y el aturdimiento que causa y el pequeño retroceso de quien lo da.
 - **Muñeco de práctica:** un segundo luchador (`Dummy`, skin por defecto) que no se controla, para probar los golpes. Al recibir uno se ilumina, queda aturdido unos cuadros, sale empujado y se gira hacia quien lo golpeó. Quien golpea retrocede un poco, mucho menos.
+- **Empuje entre luchadores:** no se pueden atravesar caminando (quien avanza empuja al otro, más lento), pero sí saltar por encima. Se ajusta en el grupo *Empuje entre luchadores* del jugador.
 - **Vista de tres cuartos:** quieto, el personaje se ve casi de frente; al caminar, saltar, agacharse o atacar pasa a perfil con un fundido corto. Es opcional por skin: se activa si la skin trae una carpeta `front/` (Kren la trae; Gerald, todavía no).
 - Personaje de prueba cuadro a cuadro (Matías), disponible como alternativa: `scenes/characters/player_matias_temp.tscn`.
 

@@ -34,6 +34,10 @@ extends Resource
 ## Ataque aéreo: se puede seguir moviendo en el aire y termina al aterrizar.
 @export var aerial: bool = false
 
+## Golpe con los brazos: la hitbox sube junto con el torso cuando la skin tiene piernas
+## que empiezan más abajo (ver CharacterVisual.torso_lift). Las patadas no lo necesitan.
+@export var follows_torso: bool = false
+
 @export_group("Al conectar")
 ## Empujón que recibe quien es golpeado, en px/s: x = alejándose del atacante, y negativa = hacia arriba.
 @export var knockback: Vector2 = Vector2(220, -150)

@@ -12,6 +12,7 @@ active_end_frame = 10
 hitbox_offset = Vector2(34, -37)
 hitbox_size = Vector2(14, 12)
 crouching = true
+follows_torso = true
 aerial = false
 knockback = Vector2(180, -110)
 hitstun_frames = 12

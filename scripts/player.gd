@@ -31,6 +31,14 @@ signal got_hit(attack: AttackData)
 ## Skin (carpeta de piezas) para visuales por piezas. Vacío = la del visual.
 @export_dir var skin_path: String = ""
 
+@export_group("Empuje entre luchadores")
+## Distancia mínima entre dos luchadores (px). Si se acercan más, se empujan: no se
+## pueden atravesar caminando, pero sí saltar por encima.
+@export var push_distance: float = 34.0
+## Si la diferencia de altura entre los dos es mayor que esto (px), no se empujan
+## (uno pasa por encima del otro en un salto).
+@export var push_height: float = 70.0
+
 @export_group("Hurtbox")
 @export var stand_hurtbox_size: Vector2 = Vector2(40, 80)   ## Zona golpeable de pie.
 @export var crouch_hurtbox_size: Vector2 = Vector2(44, 60)  ## Zona golpeable agachado.
@@ -100,6 +108,7 @@ func _physics_process(delta: float) -> void:
 			_brake(delta)
 		_update_hurtbox()
 		move_and_slide()
+		_push_away_from_fighters()
 		return
 
 	if current_attack:
@@ -121,6 +130,7 @@ func _physics_process(delta: float) -> void:
 
 	_update_hurtbox()
 	move_and_slide()
+	_push_away_from_fighters()
 	_update_animation()
 
 
@@ -158,10 +168,31 @@ func _update_hurtbox() -> void:
 	# La zona golpeable se achica al agacharse (crece desde los pies).
 	var low := is_crouching or (current_attack != null and current_attack.crouching)
 	var size := crouch_hurtbox_size if low else stand_hurtbox_size
+	if visual:
+		size.y += visual.torso_lift   # personajes más altos: zona golpeable más alta
 	var rect := hurtbox_shape.shape as RectangleShape2D
 	if rect.size != size:
 		rect.size = size
 		hurtbox_shape.position = Vector2(0, -size.y / 2.0)
+
+
+## Empuje suave entre luchadores (como la "pushbox" de los juegos de pelea).
+## Cada uno se aparta la mitad de lo que se superpone con el otro; como los dos lo hacen,
+## quien camina contra el rival lo va empujando, más lento. Se usa move_and_collide para
+## no atravesar el escenario al apartarse.
+func _push_away_from_fighters() -> void:
+	for other in get_tree().get_nodes_in_group("fighters"):
+		if other == self or not other is Node2D:
+			continue
+		var offset: Vector2 = global_position - (other as Node2D).global_position
+		if absf(offset.y) >= push_height:
+			continue
+		var overlap := push_distance - absf(offset.x)
+		if overlap <= 0.0:
+			continue
+		# Justo uno encima del otro: cada uno se aparta hacia su espalda.
+		var away := signf(offset.x) if offset.x != 0.0 else -facing
+		move_and_collide(Vector2(away * overlap * 0.5, 0.0))
 
 
 # --- Ataques ---
@@ -192,7 +223,8 @@ func start_attack(attack: AttackData) -> void:
 	_already_hit.clear()
 
 	# Colocar la hitbox según los datos del ataque, volteada si mira a la izquierda.
-	hitbox.position = Vector2(attack.hitbox_offset.x * facing, attack.hitbox_offset.y)
+	var lift: float = visual.torso_lift if visual and attack.follows_torso else 0.0
+	hitbox.position = Vector2(attack.hitbox_offset.x * facing, attack.hitbox_offset.y - lift)
 	(hitbox_shape.shape as RectangleShape2D).size = attack.hitbox_size
 	_set_hitbox_active(attack.is_active_frame(0))
 

@@ -29,6 +29,9 @@ from rig_spec import PARTS, SHEET_ROWS, ART_SCALE  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+LEG_OVERLAP = 1.5     # px de juego del muslo escondidos bajo el borde del cuerpo
+MAX_HIP_DROP = 14.0   # lo máximo que baja la cadera respecto del esqueleto normal
+
 def remove_magenta(rgb):
     """Devuelve RGBA: alfa según cuánto se parece cada píxel al magenta, sin halo rosado."""
     rgb = rgb.astype(np.float32)
@@ -193,6 +196,7 @@ def main():
     meta.setdefault("parts", {})
 
     suffix = "_left" if args.side == "left" else ""
+    body_bottom = leg_top = None
     for row_names, row in zip(SHEET_ROWS, rows):
         for name, (x0, y0, x1, y1, idx) in zip(row_names, row):
             pad = 4
@@ -216,6 +220,14 @@ def main():
             if name == "body" and (args.side == "right" or "joints" not in meta):
                 meta["joints"] = estimate_joints(np.array(img)[..., 3] > 128, (pvx * f, pvy * f),
                                                  args.view == "front")
+                body_bottom = (size[1] - pvy * f) / ART_SCALE
+            if name == "leg":
+                leg_top = pvy * f / ART_SCALE
+    # Las piernas empiezan donde termina el cuerpo (igual que SheetImporter).
+    if body_bottom is not None and leg_top is not None:
+        hip_y = round(min(max(body_bottom - LEG_OVERLAP + leg_top, 3.0), 3.0 + MAX_HIP_DROP), 1)
+        meta["joints"]["hip_front"][1] = hip_y
+        meta["joints"]["hip_back"][1] = hip_y
     with open(meta_path, "w") as fh:
         json.dump(meta, fh, indent=2, ensure_ascii=False)
     print(f"skin '{args.skin}' → {os.path.relpath(out_dir, ROOT)}")

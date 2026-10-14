@@ -60,7 +60,7 @@ const JOINT_NODES := {
 }
 ## Cuánto puede moverse una articulación respecto de su posición normal (protege
 ## contra un skin.json con valores absurdos).
-const MAX_JOINT_OFFSET := 12.0
+const MAX_JOINT_OFFSET := 16.0
 
 ## Skin que se carga al iniciar.
 @export_dir var skin_path: String = DEFAULT_SKIN
@@ -136,6 +136,12 @@ func _apply_joints(joints) -> void:
 			# Limitar el desplazamiento respecto de la posición normal.
 			pos = pos + (wanted - pos).limit_length(MAX_JOINT_OFFSET)
 		(get_node(JOINT_NODES[joint]) as Node2D).position = pos
+	# Si las piernas se unen más abajo, el esqueleto sube lo mismo: así los pies siguen en
+	# el suelo y lo que crece es el personaje (torso, brazos y cabeza más arriba).
+	var hips_now: float = (get_node(JOINT_NODES["hip_front"]).position.y + get_node(JOINT_NODES["hip_back"]).position.y) / 2.0
+	var hips_default: float = (_default_joints["hip_front"].y + _default_joints["hip_back"].y) / 2.0
+	torso_lift = hips_now - hips_default
+	rig.position.y = -torso_lift
 
 
 ## Nombres de archivo a probar, en orden de preferencia.

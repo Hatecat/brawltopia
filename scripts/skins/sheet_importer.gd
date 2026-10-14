@@ -14,6 +14,10 @@ extends RefCounted
 ## (guardando en user://), para que los jugadores puedan importar sus propios cosméticos.
 ## Hace lo mismo que tools/import_parts_sheet.py, sin necesitar Python.
 
+## Cuántos px de juego del muslo quedan escondidos bajo el borde del cuerpo.
+const LEG_OVERLAP := 1.5
+## Lo máximo que puede bajar la cadera respecto del esqueleto normal (px de juego).
+const MAX_HIP_DROP := 14.0
 const RigVisualScript := preload("res://scripts/visuals/rig_visual.gd")
 
 ## Px de imagen por px de juego en las piezas guardadas (más detalle que el juego).
@@ -77,6 +81,8 @@ static func import_sheet(sheet: Image, skin_dir: String, left_side: bool = false
 	var meta := _read_meta(skin_dir)
 	var suffix := "_left" if left_side else ""
 	var result := {}
+	var body_bottom := NAN   # borde de abajo del cuerpo, px de juego bajo la cintura
+	var leg_top := NAN       # cuánto sobresale la pierna por encima de su punto de unión
 	for part: String in named:
 		var piece := _cut_piece(img, named[part], labels, lw, lh)
 		var pf := _pivot_and_factor(part, piece, left_side)
@@ -93,6 +99,16 @@ static func import_sheet(sheet: Image, skin_dir: String, left_side: bool = false
 		# Las articulaciones se calculan con el cuerpo de la hoja A (mirando a la derecha).
 		if part == "body" and (not left_side or not meta.has("joints")):
 			meta["joints"] = estimate_joints(piece, pv, front_view)
+			body_bottom = (size.y - pv.y) / ART_SCALE
+		if part == "leg":
+			leg_top = pv.y / ART_SCALE
+
+	# Las piernas empiezan donde termina el cuerpo (apenas por debajo, para que no se vea
+	# la unión): la cadera baja hasta ahí y el personaje queda con sus proporciones reales.
+	if not is_nan(body_bottom) and not is_nan(leg_top):
+		var hip_y := snappedf(clampf(body_bottom - LEG_OVERLAP + leg_top, 3.0, 3.0 + MAX_HIP_DROP), 0.1)
+		meta["joints"]["hip_front"][1] = hip_y
+		meta["joints"]["hip_back"][1] = hip_y
 
 	var f := FileAccess.open(skin_dir.path_join("skin.json"), FileAccess.WRITE)
 	if f == null:

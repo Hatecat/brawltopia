@@ -9,6 +9,11 @@ extends Node2D
 ## y el nombre definido en cada AttackData (por ejemplo punch, kick).
 
 
+## Cuánto más arriba queda el torso porque la skin une las piernas más abajo de lo normal
+## (px de juego). El jugador lo usa para subir su zona golpeable y la hitbox de los puñetazos.
+var torso_lift: float = 0.0
+
+
 ## Reproduce una animación. Con restart = true vuelve a empezar aunque ya se esté reproduciendo.
 func play_animation(_anim: StringName, _restart: bool = false) -> void:
 	pass

@@ -33,6 +33,7 @@ func _ready() -> void:
 ## Carga una skin en las dos vistas. Devuelve cuántas imágenes de perfil se cargaron.
 func load_skin(path: String) -> int:
 	var loaded: int = side.load_skin(path)
+	torso_lift = side.torso_lift
 	var front_dir := path.path_join("front")
 	has_front = _has_head(front_dir)
 	if has_front:
