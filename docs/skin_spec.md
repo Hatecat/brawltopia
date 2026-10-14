@@ -86,7 +86,7 @@ Los valores de arriba son las posiciones normales; las que falten se quedan así
 
 ## Vista de tres cuartos (opcional): carpeta `front/`
 
-Quieto o agachado, el personaje se ve casi de frente; al moverse o atacar, de perfil. Para eso la skin lleva una subcarpeta `front/` con las mismas 4 piezas (`head`, `body`, `arm`, `leg`) dibujadas en tres cuartos, y su propio `skin.json`. Se generan con el prompt de tres cuartos de `docs/prompt_copilot.md` y se importan con la casilla **Vista de tres cuartos** del panel Skins (o `--view front` en Python).
+Quieto, el personaje se ve casi de frente; al moverse, agacharse o atacar, de perfil. Para eso la skin lleva una subcarpeta `front/` con las mismas 4 piezas (`head`, `body`, `arm`, `leg`) dibujadas en tres cuartos, y su propio `skin.json`. Se generan con el prompt de tres cuartos de `docs/prompt_copilot.md` y se importan con la casilla **Vista de tres cuartos** del panel Skins (o `--view front` en Python).
 
 En tres cuartos los hombros y las caderas quedan más separados que de perfil; el importador los calcula a partir del ancho del cuerpo y los guarda en `joints`. Si la carpeta `front/` no existe, la skin se ve siempre de perfil.
 

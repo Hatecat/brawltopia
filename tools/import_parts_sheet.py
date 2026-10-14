@@ -160,14 +160,16 @@ def estimate_joints(mask, waist, front=False):
     shoulder_y, neck_y = top + 6.0, top + 2.0
     sh_cx, sh_w = row(shoulder_y)
     sh_dx = min(max(sh_w * 0.28, 1.0), 9.0) if front else 1.0
+    near_sh_dx = min(max(sh_w * 0.4, 1.0), 9.0) if front else 1.0  # hombro cercano: en el borde
     neck_cx, _ = row(neck_y)
+    near = -1 if front else 1  # de tres cuartos, lo más cercano a la cámara queda a la izquierda
     r = lambda v: round(v, 1)  # noqa: E731
     return {
         "neck": [r(neck_cx), r(neck_y)],
-        "shoulder_front": [r(sh_cx + sh_dx), r(shoulder_y)],
-        "shoulder_back": [r(sh_cx - sh_dx), r(shoulder_y)],
-        "hip_front": [r(hip_cx + hip_dx), 3.0],
-        "hip_back": [r(hip_cx - hip_dx), 3.0],
+        "shoulder_front": [r(sh_cx + near * near_sh_dx), r(shoulder_y)],
+        "shoulder_back": [r(sh_cx - near * sh_dx), r(shoulder_y)],
+        "hip_front": [r(hip_cx + near * hip_dx), 3.0],
+        "hip_back": [r(hip_cx - near * hip_dx), 3.0],
     }
 
 

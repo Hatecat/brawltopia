@@ -84,7 +84,7 @@ PIECES (all facing LEFT, flat, no perspective):
 Same scale and proportions as image 1. Do not draw the assembled character. Draw only the 4 separate pieces on the magenta background.
 ```
 
-## Vista de tres cuartos (quieto y agachado)
+## Vista de tres cuartos (quieto)
 
 Es una hoja aparte, opcional, para que el personaje se vea más de frente cuando está quieto. Adjunta la hoja de presentación del personaje y la hoja A ya generada (para que mantenga los colores y el estilo). Reemplaza la descripción entre corchetes por la de tu personaje.
 

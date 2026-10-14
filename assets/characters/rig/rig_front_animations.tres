@@ -1,4 +1,4 @@
-[gd_resource type="AnimationLibrary" load_steps=3 format=3]
+[gd_resource type="AnimationLibrary" load_steps=2 format=3]
 
 [sub_resource type="Animation" id="Animation_idle"]
 resource_name = "idle"
@@ -14,7 +14,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.6, 1.2),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [0.05236, 0.087266, 0.05236]
+"values": [0.034907, 0.069813, 0.034907]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -26,7 +26,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.6, 1.2),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [-0.069813, -0.05236, -0.069813]
+"values": [-0.05236, -0.034907, -0.05236]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -38,7 +38,7 @@ tracks/2/keys = {
 "times": PackedFloat32Array(0, 0.6, 1.2),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [-0.663225, -0.663225, -0.663225]
+"values": [-0.453786, -0.453786, -0.453786]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
@@ -47,148 +47,11 @@ tracks/3/path = NodePath("Rig/Hips/Torso/ShoulderFront/Elbow:rotation")
 tracks/3/interp = 2
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.6, 1.2),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 0,
-"values": [-2.059489, -1.954769, -2.059489]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("Rig/Hips/Torso/ShoulderBack:rotation")
-tracks/4/interp = 2
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.6, 1.2),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 0,
-"values": [-0.488692, -0.488692, -0.488692]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("Rig/Hips/Torso/ShoulderBack/Elbow:rotation")
-tracks/5/interp = 2
-tracks/5/loop_wrap = true
-tracks/5/keys = {
 "times": PackedFloat32Array(0, 0.6, 1.2),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
 "values": [-2.129302, -2.024582, -2.129302]
 }
-tracks/6/type = "value"
-tracks/6/imported = false
-tracks/6/enabled = true
-tracks/6/path = NodePath("Rig/Hips/HipFront:rotation")
-tracks/6/interp = 2
-tracks/6/loop_wrap = true
-tracks/6/keys = {
-"times": PackedFloat32Array(0, 0.6, 1.2),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 0,
-"values": [-0.122173, -0.15708, -0.122173]
-}
-tracks/7/type = "value"
-tracks/7/imported = false
-tracks/7/enabled = true
-tracks/7/path = NodePath("Rig/Hips/HipFront/Knee:rotation")
-tracks/7/interp = 2
-tracks/7/loop_wrap = true
-tracks/7/keys = {
-"times": PackedFloat32Array(0, 0.6, 1.2),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 0,
-"values": [0.15708, 0.226893, 0.15708]
-}
-tracks/8/type = "value"
-tracks/8/imported = false
-tracks/8/enabled = true
-tracks/8/path = NodePath("Rig/Hips/HipBack:rotation")
-tracks/8/interp = 2
-tracks/8/loop_wrap = true
-tracks/8/keys = {
-"times": PackedFloat32Array(0, 0.6, 1.2),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 0,
-"values": [0.15708, 0.122173, 0.15708]
-}
-tracks/9/type = "value"
-tracks/9/imported = false
-tracks/9/enabled = true
-tracks/9/path = NodePath("Rig/Hips/HipBack/Knee:rotation")
-tracks/9/interp = 2
-tracks/9/loop_wrap = true
-tracks/9/keys = {
-"times": PackedFloat32Array(0, 0.6, 1.2),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 0,
-"values": [0.122173, 0.191986, 0.122173]
-}
-tracks/10/type = "value"
-tracks/10/imported = false
-tracks/10/enabled = true
-tracks/10/path = NodePath("Rig/Hips:position")
-tracks/10/interp = 2
-tracks/10/loop_wrap = true
-tracks/10/keys = {
-"times": PackedFloat32Array(0, 0.6, 1.2),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 0,
-"values": [Vector2(0, -38.94), Vector2(0, -39.03), Vector2(0, -38.94)]
-}
-
-[sub_resource type="Animation" id="Animation_crouch"]
-resource_name = "crouch"
-length = 0.8
-loop_mode = 1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Rig/Hips/Torso:rotation")
-tracks/0/interp = 2
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.4, 0.8),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 0,
-"values": [0.349066, 0.401426, 0.349066]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Rig/Hips/Torso/Neck:rotation")
-tracks/1/interp = 2
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.4, 0.8),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 0,
-"values": [-0.279253, -0.279253, -0.279253]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("Rig/Hips/Torso/ShoulderFront:rotation")
-tracks/2/interp = 2
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.4, 0.8),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 0,
-"values": [-0.872665, -0.872665, -0.872665]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("Rig/Hips/Torso/ShoulderFront/Elbow:rotation")
-tracks/3/interp = 2
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0, 0.4, 0.8),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 0,
-"values": [-1.832596, -1.745329, -1.832596]
-}
 tracks/4/type = "value"
 tracks/4/imported = false
 tracks/4/enabled = true
@@ -196,10 +59,10 @@ tracks/4/path = NodePath("Rig/Hips/Torso/ShoulderBack:rotation")
 tracks/4/interp = 2
 tracks/4/loop_wrap = true
 tracks/4/keys = {
-"times": PackedFloat32Array(0, 0.4, 0.8),
+"times": PackedFloat32Array(0, 0.6, 1.2),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [-0.698132, -0.698132, -0.698132]
+"values": [-0.20944, -0.20944, -0.20944]
 }
 tracks/5/type = "value"
 tracks/5/imported = false
@@ -208,10 +71,10 @@ tracks/5/path = NodePath("Rig/Hips/Torso/ShoulderBack/Elbow:rotation")
 tracks/5/interp = 2
 tracks/5/loop_wrap = true
 tracks/5/keys = {
-"times": PackedFloat32Array(0, 0.4, 0.8),
+"times": PackedFloat32Array(0, 0.6, 1.2),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [-1.919862, -1.832596, -1.919862]
+"values": [-2.443461, -2.338741, -2.443461]
 }
 tracks/6/type = "value"
 tracks/6/imported = false
@@ -220,10 +83,10 @@ tracks/6/path = NodePath("Rig/Hips/HipFront:rotation")
 tracks/6/interp = 2
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"times": PackedFloat32Array(0, 0.4, 0.8),
+"times": PackedFloat32Array(0, 0.6, 1.2),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [-1.396263, -1.396263, -1.396263]
+"values": [0.10472, 0.139626, 0.10472]
 }
 tracks/7/type = "value"
 tracks/7/imported = false
@@ -232,10 +95,10 @@ tracks/7/path = NodePath("Rig/Hips/HipFront/Knee:rotation")
 tracks/7/interp = 2
 tracks/7/loop_wrap = true
 tracks/7/keys = {
-"times": PackedFloat32Array(0, 0.4, 0.8),
+"times": PackedFloat32Array(0, 0.6, 1.2),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [1.396263, 1.396263, 1.396263]
+"values": [-0.069813, -0.122173, -0.069813]
 }
 tracks/8/type = "value"
 tracks/8/imported = false
@@ -244,10 +107,10 @@ tracks/8/path = NodePath("Rig/Hips/HipBack:rotation")
 tracks/8/interp = 2
 tracks/8/loop_wrap = true
 tracks/8/keys = {
-"times": PackedFloat32Array(0, 0.4, 0.8),
+"times": PackedFloat32Array(0, 0.6, 1.2),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [-1.32645, -1.32645, -1.32645]
+"values": [-0.139626, -0.174533, -0.139626]
 }
 tracks/9/type = "value"
 tracks/9/imported = false
@@ -256,10 +119,10 @@ tracks/9/path = NodePath("Rig/Hips/HipBack/Knee:rotation")
 tracks/9/interp = 2
 tracks/9/loop_wrap = true
 tracks/9/keys = {
-"times": PackedFloat32Array(0, 0.4, 0.8),
+"times": PackedFloat32Array(0, 0.6, 1.2),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [1.32645, 1.32645, 1.32645]
+"values": [0.10472, 0.15708, 0.10472]
 }
 tracks/10/type = "value"
 tracks/10/imported = false
@@ -268,14 +131,13 @@ tracks/10/path = NodePath("Rig/Hips:position")
 tracks/10/interp = 2
 tracks/10/loop_wrap = true
 tracks/10/keys = {
-"times": PackedFloat32Array(0, 0.4, 0.8),
+"times": PackedFloat32Array(0, 0.6, 1.2),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [Vector2(0, -27.39), Vector2(0, -27.39), Vector2(0, -27.39)]
+"values": [Vector2(0, -38.15), Vector2(0, -37.98), Vector2(0, -38.15)]
 }
 
 [resource]
 _data = {
-"idle": SubResource("Animation_idle"),
-"crouch": SubResource("Animation_crouch")
+"idle": SubResource("Animation_idle")
 }

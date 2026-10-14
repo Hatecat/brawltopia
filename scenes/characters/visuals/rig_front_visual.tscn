@@ -15,7 +15,7 @@ position = Vector2(0, -38)
 
 [node name="HipBack" type="Node2D" parent="Rig/Hips"]
 z_index = 1
-position = Vector2(-4, 3)
+position = Vector2(4, 3)
 
 [node name="Leg" type="Polygon2D" parent="Rig/Hips/HipBack" node_paths=PackedStringArray("bend_node")]
 script = ExtResource("3_mesh")
@@ -34,7 +34,7 @@ bend_axis = Vector2(0, -1)
 
 [node name="ShoulderBack" type="Node2D" parent="Rig/Hips/Torso"]
 z_index = 1
-position = Vector2(-5, -20)
+position = Vector2(5, -20)
 
 [node name="Arm" type="Polygon2D" parent="Rig/Hips/Torso/ShoulderBack" node_paths=PackedStringArray("bend_node")]
 script = ExtResource("3_mesh")
@@ -54,7 +54,7 @@ position = Vector2(1, -24)
 
 [node name="ShoulderFront" type="Node2D" parent="Rig/Hips/Torso"]
 z_index = 4
-position = Vector2(5, -20)
+position = Vector2(-5, -20)
 
 [node name="Arm" type="Polygon2D" parent="Rig/Hips/Torso/ShoulderFront" node_paths=PackedStringArray("bend_node")]
 script = ExtResource("3_mesh")
@@ -68,7 +68,7 @@ position = Vector2(0, 13)
 
 [node name="HipFront" type="Node2D" parent="Rig/Hips"]
 z_index = 3
-position = Vector2(4, 3)
+position = Vector2(-4, 3)
 
 [node name="Leg" type="Polygon2D" parent="Rig/Hips/HipFront" node_paths=PackedStringArray("bend_node")]
 script = ExtResource("3_mesh")

@@ -1,13 +1,13 @@
 extends CharacterVisual
 ## Personaje con dos vistas que se funden entre sí:
 ##   - Side (perfil): para moverse, saltar y atacar. Tiene todas las animaciones.
-##   - Front (tres cuartos): para estar quieto o agachado, mirando más hacia la cámara.
+##   - Front (tres cuartos): para estar quieto, mirando más hacia la cámara.
 ##
 ## La vista de tres cuartos es opcional: se usa solo si la skin trae una carpeta
 ## "front/" con sus piezas. Si no, el personaje se ve siempre de perfil.
 
 ## Animaciones que se ven de tres cuartos (si la skin lo permite).
-const FRONT_ANIMS: Array[StringName] = [&"idle", &"crouch"]
+const FRONT_ANIMS: Array[StringName] = [&"idle"]
 ## Duración del fundido entre vistas, en segundos (se siente como un giro rápido).
 const FADE_TIME := 0.1
 

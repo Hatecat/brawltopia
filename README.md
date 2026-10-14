@@ -17,7 +17,7 @@ Juego de lucha 2D tipo *platform fighter*, inspirado en Super Smash Bros. y M.U.
 - **Skins de jugadores:** se cargan desde una carpeta (`user://skins/<nombre>/`). Solo se aceptan PNG de hasta 1024 px; las piezas que falten se toman de la skin por defecto.
 - **Ataques definidos como datos** (`AttackData`), con tiempos en cuadros de juego (60 por segundo): preparación, cuadros activos de la caja de golpe (hitbox) y recuperación. Cada ataque define también el empuje y el aturdimiento que causa y el pequeño retroceso de quien lo da.
 - **Muñeco de práctica:** un segundo luchador (`Dummy`, skin por defecto) que no se controla, para probar los golpes. Al recibir uno se ilumina, queda aturdido unos cuadros, sale empujado y se gira hacia quien lo golpeó. Quien golpea retrocede un poco, mucho menos.
-- **Vista de tres cuartos:** quieto o agachado, el personaje se ve casi de frente; al caminar, saltar o atacar pasa a perfil con un fundido corto. Es opcional por skin: se activa si la skin trae una carpeta `front/` (Kren la trae; Gerald, todavía no).
+- **Vista de tres cuartos:** quieto, el personaje se ve casi de frente; al caminar, saltar, agacharse o atacar pasa a perfil con un fundido corto. Es opcional por skin: se activa si la skin trae una carpeta `front/` (Kren la trae; Gerald, todavía no).
 - Personaje de prueba cuadro a cuadro (Matías), disponible como alternativa: `scenes/characters/player_matias_temp.tscn`.
 
 ## Cómo abrirlo
@@ -56,7 +56,7 @@ scenes/
     player_matias_temp.tscn        variante con el personaje de prueba cuadro a cuadro
     visuals/fighter_visual.tscn    une las dos vistas (perfil y tres cuartos) y las alterna
     visuals/rig_visual.tscn        esqueleto, mallas deformables y AnimationPlayer (perfil)
-    visuals/rig_front_visual.tscn  el mismo esqueleto en tres cuartos (quieto y agachado)
+    visuals/rig_front_visual.tscn  el mismo esqueleto en tres cuartos (quieto)
     visuals/matias_sprite_visual.tscn
 resources/attacks/                 datos de cada ataque (.tres)
 assets/characters/

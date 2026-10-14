@@ -185,8 +185,11 @@ ANIMS = {
 
 # --- Esqueleto de tres cuartos (solo quieto y agachado) ---
 # El cuerpo mira más hacia la cámara: piernas algo abiertas, guardia más frontal.
-GUARD_FRONT = dict(torso=3, head=-4, shoulder_f=-38, elbow_f=-118, shoulder_b=-28, elbow_b=-122,
-                   hip_f=-7, knee_f=9, hip_b=9, knee_b=7)
+# Tres cuartos (girado hacia la derecha): el hombro y la cadera cercanos a la cámara están a la
+# IZQUIERDA del cuerpo. El brazo de adelante cruza el pecho hasta la guardia; el de atrás queda
+# casi tapado por el pecho y solo asoma el puño, a la altura del mentón.
+GUARD_FRONT = dict(torso=2, head=-3, shoulder_f=-26, elbow_f=-122, shoulder_b=-12, elbow_b=-140,
+                   hip_f=6, knee_f=-4, hip_b=-8, knee_b=6)
 
 
 def front(**changes):
@@ -195,19 +198,11 @@ def front(**changes):
     return p
 
 
-CROUCH_FRONT = front(torso=20, head=-16, hip_f=-80, knee_f=80, hip_b=-76, knee_b=76,
-                     shoulder_f=-50, elbow_f=-105, shoulder_b=-40, elbow_b=-110)
-
 FRONT_ANIMS = {
     "idle": (1.2, True, 2, False, [
         (0.0, front()),
-        (0.6, front(torso=5, head=-3, elbow_f=-112, elbow_b=-116, knee_f=13, knee_b=11, hip_f=-9, hip_b=7)),
+        (0.6, front(torso=4, head=-2, elbow_f=-116, elbow_b=-134, hip_f=8, knee_f=-7, hip_b=-10, knee_b=9)),
         (1.2, front()),
-    ]),
-    "crouch": (0.8, True, 2, False, [
-        (0.0, CROUCH_FRONT),
-        (0.4, dict(CROUCH_FRONT, torso=23, elbow_f=-100, elbow_b=-105)),
-        (0.8, CROUCH_FRONT),
     ]),
 }
 

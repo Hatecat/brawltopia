@@ -123,14 +123,19 @@ static func estimate_joints(body: Image, waist: Vector2, front: bool = false) ->
 	var shoulders: Array = to_game.call(_row_span(body, waist.y + shoulder_y * ART_SCALE))
 	# De perfil los hombros casi se superponen; de tres cuartos se ven separados.
 	var shoulder_dx: float = clampf(shoulders[1] * 0.28, 1.0, 9.0) if front else 1.0
+	# El hombro cercano queda en el borde del cuerpo (donde suele estar dibujada la manga).
+	var near_shoulder_dx: float = clampf(shoulders[1] * 0.4, 1.0, 9.0) if front else 1.0
 	var neck: Array = to_game.call(_row_span(body, waist.y + neck_y * ART_SCALE))
+	# De tres cuartos (girado hacia la derecha) el hombro y la cadera más cercanos a la
+	# cámara quedan a la IZQUIERDA del cuerpo; los de atrás, a la derecha, tapados por el pecho.
+	var near := -1.0 if front else 1.0
 	var r := func(v: float) -> float: return snappedf(v, 0.1)
 	return {
 		"neck": [r.call(neck[0]), r.call(neck_y)],
-		"shoulder_front": [r.call(shoulders[0] + shoulder_dx), r.call(shoulder_y)],
-		"shoulder_back": [r.call(shoulders[0] - shoulder_dx), r.call(shoulder_y)],
-		"hip_front": [r.call(hips[0] + hip_dx), 3.0],
-		"hip_back": [r.call(hips[0] - hip_dx), 3.0],
+		"shoulder_front": [r.call(shoulders[0] + near * near_shoulder_dx), r.call(shoulder_y)],
+		"shoulder_back": [r.call(shoulders[0] - near * shoulder_dx), r.call(shoulder_y)],
+		"hip_front": [r.call(hips[0] + near * hip_dx), 3.0],
+		"hip_back": [r.call(hips[0] - near * hip_dx), 3.0],
 	}
 
 
