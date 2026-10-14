@@ -18,6 +18,6 @@ position = Vector2(640, 520)
 [node name="ControlsHint" type="Label" parent="."]
 offset_left = 16.0
 offset_top = 12.0
-offset_right = 600.0
+offset_right = 900.0
 offset_bottom = 40.0
-text = "A / D o ← / → : moverse     W / ↑ / Espacio : saltar"
+text = "A / D o ← / → : moverse     W / ↑ / Espacio : saltar     J : puñetazo     K : patada"

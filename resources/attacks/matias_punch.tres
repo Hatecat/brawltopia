@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="AttackData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/attack_data.gd" id="1_attack"]
+
+[resource]
+script = ExtResource("1_attack")
+animation = &"punch"
+damage = 6.0
+active_start_frame = 2
+active_end_frame = 3
+hitbox_offset = Vector2(30, -56)
+hitbox_size = Vector2(22, 16)

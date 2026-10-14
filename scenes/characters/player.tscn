@@ -1,15 +1,26 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="SpriteFrames" path="res://assets/characters/matias_temp/matias_frames.tres" id="2_frames"]
+[ext_resource type="Resource" path="res://resources/attacks/matias_punch.tres" id="3_punch"]
+[ext_resource type="Resource" path="res://resources/attacks/matias_kick.tres" id="4_kick"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
 size = Vector2(40, 80)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hurtbox"]
+size = Vector2(40, 80)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hitbox"]
+resource_local_to_scene = true
+size = Vector2(20, 20)
 
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 2
 collision_mask = 1
 script = ExtResource("1_player")
+punch_attack = ExtResource("3_punch")
+kick_attack = ExtResource("4_kick")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -40)
@@ -17,8 +28,27 @@ shape = SubResource("RectangleShape2D_body")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
 texture_filter = 1
-position = Vector2(0, -42.5)
+position = Vector2(0, -43.75)
 scale = Vector2(1.25, 1.25)
 sprite_frames = ExtResource("2_frames")
 animation = &"idle"
 autoplay = "idle"
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, -40)
+shape = SubResource("RectangleShape2D_hurtbox")
+
+[node name="Hitbox" type="Area2D" parent="."]
+collision_layer = 4
+collision_mask = 8
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+shape = SubResource("RectangleShape2D_hitbox")
+disabled = true
+debug_color = Color(1, 0.2, 0.1, 0.5)
