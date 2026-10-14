@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://djvvw7luy4oq7"
-path="res://.godot/imported/pelvis.png-01ba5697487126dfe4074a959110b560.ctex"
+uid="uid://cnxa2vuxlago8"
+path="res://.godot/imported/arm.png-0a0daf0189460a4198c55d50eb3626ed.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/skins/default/pelvis.png"
-dest_files=["res://.godot/imported/pelvis.png-01ba5697487126dfe4074a959110b560.ctex"]
+source_file="res://assets/characters/skins/gerald/arm.png"
+dest_files=["res://.godot/imported/arm.png-0a0daf0189460a4198c55d50eb3626ed.ctex"]
 
 [params]
 

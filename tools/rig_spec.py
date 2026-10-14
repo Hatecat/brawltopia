@@ -1,27 +1,35 @@
 """Especificación de las piezas del personaje (tamaño "mediano").
 
-Debe coincidir con PART_SPECS en scripts/visuals/rig_visual.gd.
+Debe coincidir con PART_SPECS en scripts/visuals/rig_visual.gd y con las
+articulaciones de scenes/characters/visuals/rig_visual.tscn.
 
 - size:  tamaño de la pieza en el juego, en píxeles.
-- pivot: punto de unión (donde gira la pieza), medido desde la esquina superior izquierda.
+- pivot: punto de unión (donde se engancha y gira la pieza), desde la esquina superior izquierda.
 - Las imágenes se dibujan a ART_SCALE veces ese tamaño (más detalle); el juego las reduce.
-- Todas las piezas miran a la DERECHA. Brazos y piernas se dibujan colgando hacia abajo.
+- Todas las piezas miran a la DERECHA. Brazo y pierna se dibujan RECTOS, colgando hacia abajo.
+- Cuerpo, brazo y pierna se deforman (se doblan) en una articulación interna:
+  cintura, codo y rodilla. La cabeza es rígida.
 """
 ART_SCALE = 4
 
 PARTS = {
-    #  nombre:     (size,      pivot,    descripción)
-    "head":      ((18, 20), (9, 18),  "Cabeza de perfil mirando a la derecha. Unión: cuello, abajo al centro."),
-    "torso":     ((24, 28), (12, 26), "Tronco (pecho y abdomen) de perfil. Unión: cintura, abajo al centro."),
-    "pelvis":    ((22, 12), (11, 2),  "Cadera / cinturón. Unión: cintura, arriba al centro."),
-    "upper_arm": ((8, 20),  (4, 4),   "Brazo (hombro a codo), colgando. Unión: hombro, arriba. Extremos redondeados."),
-    "forearm":   ((8, 20),  (4, 4),   "Antebrazo con el puño cerrado abajo. Unión: codo, arriba."),
-    "thigh":     ((10, 24), (5, 5),   "Muslo (cadera a rodilla), colgando. Unión: cadera, arriba. Extremos redondeados."),
-    "shin":      ((12, 26), (5, 5),   "Pierna (rodilla a tobillo) con la zapatilla abajo apuntando a la derecha. Unión: rodilla, arriba."),
+    #  nombre: (size,     pivot,    descripción)
+    "head": ((18, 20), (9, 18),  "Cabeza de perfil con cuello. Unión: cuello, abajo al centro."),
+    "body": ((24, 36), (12, 26), "Torso y cadera en una pieza. Unión: cintura (se dobla ahí)."),
+    "arm":  ((8, 32),  (4, 4),   "Brazo completo, del hombro al puño, recto. Se dobla en el codo."),
+    "leg":  ((12, 40), (5, 5),   "Pierna completa, de la cadera a la zapatilla, recta. Se dobla en la rodilla."),
+}
+
+# Distancia (px de juego) desde la unión hasta la articulación interna donde se dobla
+# y dirección hacia la parte que gira (abajo = brazo/pierna, arriba = torso).
+BEND = {
+    "body": (0, "up"),     # la cintura es la misma unión
+    "arm":  (12, "down"),  # hombro → codo
+    "leg":  (14, "down"),  # cadera → rodilla
 }
 
 # Orden en la plantilla / en la hoja que se pide al generador de imágenes.
-SHEET_ROWS = [["head", "torso", "pelvis"], ["upper_arm", "forearm", "thigh", "shin"]]
+SHEET_ROWS = [["head", "body"], ["arm", "leg"]]
 
 
 def art_size(name):

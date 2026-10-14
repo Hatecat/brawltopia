@@ -1,16 +1,22 @@
 extends CharacterVisual
-## Personaje por piezas: un esqueleto de articulaciones (Node2D) con una imagen
-## por pieza (Sprite2D), animado con un AnimationPlayer.
+## Personaje por piezas con deformación por malla.
 ##
-## Las imágenes de las piezas forman una "skin" (un cosmético): una carpeta con
-## head.png, torso.png, pelvis.png, upper_arm.png, forearm.png, thigh.png y shin.png,
-## y opcionalmente:
-##   - <pieza>_left.png       cómo se ve la pieza mirando a la IZQUIERDA (dibujada así).
-##                            Si no existe, se usa la de la derecha volteada.
-##   - <pieza>_back.png       versión para el brazo/pierna de atrás (si no, se usa la de
-##                            adelante oscurecida). También <pieza>_back_left.png.
+## Un esqueleto de articulaciones (Node2D) animado con un AnimationPlayer mueve 4 imágenes:
+##   - head: rígida, gira en el cuello (Sprite2D).
+##   - body, arm, leg: mallas (DeformMesh) que se DOBLAN en la cintura, el codo y la
+##     rodilla, así la imagen se curva entera en vez de partirse en dos.
+## El brazo y la pierna de atrás reutilizan imágenes, oscurecidas.
+##
+## Una "skin" es una carpeta con head.png, body.png, arm.png y leg.png, y opcionalmente:
+##   - <pieza>_left.png       el OTRO lado del cuerpo, dibujado mirando a la izquierda
+##                            (un tatuaje, una rodillera...). Si no existe, se voltea la normal.
+##   - <pieza>_back.png       brazo/pierna de atrás con imagen propia (rara vez hace falta).
 ##   - skin.json              punto de unión y escala de cada imagen (ver docs/skin_spec.md).
 ## Puede estar dentro del juego (res://...) o en la carpeta del jugador (user://...).
+##
+## Qué lado se ve: mirando a la derecha se ve el lado IZQUIERDO del personaje
+## (<pieza>.png); mirando a la izquierda, el DERECHO (<pieza>_left.png). La extremidad
+## de atrás es siempre la del otro lado, así un detalle de un solo lado queda en su lugar.
 
 ## Carpeta de la skin por defecto (se usa también si a otra skin le falta una pieza).
 const DEFAULT_SKIN := "res://assets/characters/skins/default"
@@ -22,37 +28,29 @@ const MAX_IMAGE_SIZE := 1024
 ## Debe coincidir con tools/rig_spec.py. Se usa cuando la skin no trae skin.json:
 ## entonces cada imagen se ajusta a este tamaño.
 const PART_SPECS := {
-	"head":      {"size": Vector2(18, 20), "pivot": Vector2(9, 18)},
-	"torso":     {"size": Vector2(24, 28), "pivot": Vector2(12, 26)},
-	"pelvis":    {"size": Vector2(22, 12), "pivot": Vector2(11, 2)},
-	"upper_arm": {"size": Vector2(8, 20),  "pivot": Vector2(4, 4)},
-	"forearm":   {"size": Vector2(8, 20),  "pivot": Vector2(4, 4)},
-	"thigh":     {"size": Vector2(10, 24), "pivot": Vector2(5, 5)},
-	"shin":      {"size": Vector2(12, 26), "pivot": Vector2(5, 5)},
+	"head": {"size": Vector2(18, 20), "pivot": Vector2(9, 18)},
+	"body": {"size": Vector2(24, 36), "pivot": Vector2(12, 26)},
+	"arm":  {"size": Vector2(8, 32),  "pivot": Vector2(4, 4)},
+	"leg":  {"size": Vector2(12, 40), "pivot": Vector2(5, 5)},
 }
 
-## Qué pieza muestra cada Sprite2D del esqueleto.
-const SPRITE_PARTS := {
-	"Rig/Hips/Pelvis": "pelvis",
-	"Rig/Hips/Torso/TorsoSprite": "torso",
+## Qué pieza muestra cada nodo del esqueleto.
+const PART_NODES := {
+	"Rig/Hips/Body": "body",
 	"Rig/Hips/Torso/Neck/Head": "head",
-	"Rig/Hips/Torso/ShoulderFront/UpperArm": "upper_arm",
-	"Rig/Hips/Torso/ShoulderFront/Elbow/Forearm": "forearm",
-	"Rig/Hips/Torso/ShoulderBack/UpperArm": "upper_arm",
-	"Rig/Hips/Torso/ShoulderBack/Elbow/Forearm": "forearm",
-	"Rig/Hips/HipFront/Thigh": "thigh",
-	"Rig/Hips/HipFront/Knee/Shin": "shin",
-	"Rig/Hips/HipBack/Thigh": "thigh",
-	"Rig/Hips/HipBack/Knee/Shin": "shin",
+	"Rig/Hips/Torso/ShoulderFront/Arm": "arm",
+	"Rig/Hips/Torso/ShoulderBack/Arm": "arm",
+	"Rig/Hips/HipFront/Leg": "leg",
+	"Rig/Hips/HipBack/Leg": "leg",
 }
 
-## Las extremidades traseras sin imagen propia se oscurecen para dar profundidad.
+## Las extremidades traseras se oscurecen para dar profundidad.
 const BACK_TINT := Color(0.62, 0.62, 0.68)
 
 ## Skin que se carga al iniciar.
 @export_dir var skin_path: String = DEFAULT_SKIN
 
-## Cómo se dibuja cada Sprite2D según el lado: {"right"/"left": {ruta: {texture, scale, offset, tint}}}
+## Cómo se dibuja cada pieza según el lado: {"right"/"left": {ruta: {texture, scale, pivot, tint}}}
 var _looks := {"right": {}, "left": {}}
 var _side := "right"
 
@@ -90,9 +88,9 @@ func load_skin(path: String) -> int:
 	var default_meta := _read_meta(DEFAULT_SKIN)
 	var cache := {}   # archivo → Image (para no leer dos veces la misma imagen)
 	var used := {}
-	for sprite_path: String in SPRITE_PARTS:
-		var part: String = SPRITE_PARTS[sprite_path]
-		var is_back := sprite_path.contains("Back")
+	for node_path: String in PART_NODES:
+		var part: String = PART_NODES[node_path]
+		var is_back := node_path.contains("Back")
 		for side: String in ["right", "left"]:
 			var look := {}
 			for candidate: String in _candidates(part, is_back, side == "left"):
@@ -102,28 +100,27 @@ func load_skin(path: String) -> int:
 					break
 			if look.is_empty():
 				look = _make_look(DEFAULT_SKIN, part, part, default_meta, cache)
-			# Atrás sin imagen propia: oscurecer.
-			look["tint"] = BACK_TINT if is_back and not look.get("file", "").contains("_back") else Color.WHITE
-			_looks[side][sprite_path] = look
+			look["tint"] = BACK_TINT if is_back else Color.WHITE
+			_looks[side][node_path] = look
 	_apply_looks()
 	return used.size()
 
 
 ## Nombres de archivo a probar, en orden de preferencia.
+## <pieza>.png muestra el lado izquierdo del cuerpo; <pieza>_left.png, el derecho.
+## La extremidad de atrás es la del lado contrario al que se ve.
 func _candidates(part: String, is_back: bool, left: bool) -> Array[String]:
-	var list: Array[String] = []
-	if left:
-		if is_back:
-			list.append(part + "_back_left")
-		list.append(part + "_left")
-	if is_back:
-		list.append(part + "_back")
-	list.append(part)
-	return list
+	if not left and not is_back:
+		return [part]                                       # mirando a la der.: lado izquierdo
+	if left and not is_back:
+		return [part + "_left", part]                       # mirando a la izq.: lado derecho
+	if not left and is_back:
+		return [part + "_back", part + "_left", part]       # atrás, mirando a la der.: lado derecho
+	return [part + "_back_left", part]                      # atrás, mirando a la izq.: lado izquierdo
 
 
-## Prepara cómo se dibuja una imagen: textura, escala y desplazamiento para que
-## su punto de unión quede en la articulación. Vacío si la imagen no existe o no es válida.
+## Prepara cómo se dibuja una imagen: textura, escala y punto de unión.
+## Vacío si la imagen no existe o no es válida.
 func _make_look(dir: String, file: String, part: String, meta: Dictionary, cache: Dictionary) -> Dictionary:
 	var key := dir.path_join(file + ".png")
 	if not cache.has(key):
@@ -145,7 +142,7 @@ func _make_look(dir: String, file: String, part: String, meta: Dictionary, cache
 		scale_v = spec["size"] / size
 		pivot = spec["pivot"] / spec["size"] * size
 	var tex_image := image.duplicate() as Image  # copia: la original queda en caché sin modificar
-	if file.ends_with("_left"):
+	if file.contains("_left"):
 		# Dibujada mirando a la izquierda: la volteamos para que el esqueleto
 		# (que se voltea al mirar a la izquierda) la muestre tal como se dibujó.
 		tex_image.flip_x()
@@ -154,20 +151,27 @@ func _make_look(dir: String, file: String, part: String, meta: Dictionary, cache
 	return {
 		"texture": ImageTexture.create_from_image(tex_image),
 		"scale": scale_v,
-		"offset": -pivot,
+		"pivot": pivot,
 		"file": file,
 	}
 
 
 func _apply_looks() -> void:
-	for sprite_path: String in _looks[_side]:
-		var look: Dictionary = _looks[_side][sprite_path]
-		var sprite := get_node(sprite_path) as Sprite2D
-		sprite.centered = false
-		sprite.texture = look.get("texture")
-		sprite.scale = look.get("scale", Vector2.ONE)
-		sprite.offset = look.get("offset", Vector2.ZERO)
-		sprite.self_modulate = look.get("tint", Color.WHITE)
+	for node_path: String in _looks[_side]:
+		var look: Dictionary = _looks[_side][node_path]
+		var node := get_node(node_path)
+		var tex: Texture2D = look.get("texture")
+		var scale_v: Vector2 = look.get("scale", Vector2.ONE)
+		var pivot: Vector2 = look.get("pivot", Vector2.ZERO)
+		if node is DeformMesh:
+			(node as DeformMesh).setup(tex, pivot, scale_v)
+		elif node is Sprite2D:
+			var sprite := node as Sprite2D
+			sprite.centered = false
+			sprite.texture = tex
+			sprite.scale = scale_v
+			sprite.offset = -pivot
+		(node as CanvasItem).self_modulate = look.get("tint", Color.WHITE)
 
 
 func _read_meta(dir: String) -> Dictionary:

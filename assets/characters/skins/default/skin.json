@@ -1,0 +1,33 @@
+{
+  "name": "default",
+  "parts": {
+    "head": {
+      "pivot": [
+        36,
+        72
+      ],
+      "scale": 0.25
+    },
+    "body": {
+      "pivot": [
+        48,
+        104
+      ],
+      "scale": 0.25
+    },
+    "arm": {
+      "pivot": [
+        16,
+        16
+      ],
+      "scale": 0.25
+    },
+    "leg": {
+      "pivot": [
+        20,
+        20
+      ],
+      "scale": 0.25
+    }
+  }
+}

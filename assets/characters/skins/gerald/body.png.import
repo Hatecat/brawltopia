@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://nqgbyidfs53f"
-path="res://.godot/imported/thigh.png-1c6a56f743559d2dece1796fe6137485.ctex"
+uid="uid://ds6msbteiwbt7"
+path="res://.godot/imported/body.png-c7cfcce20055073cdcd950fc50908b0f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/skins/default/thigh.png"
-dest_files=["res://.godot/imported/thigh.png-1c6a56f743559d2dece1796fe6137485.ctex"]
+source_file="res://assets/characters/skins/gerald/body.png"
+dest_files=["res://.godot/imported/body.png-c7cfcce20055073cdcd950fc50908b0f.ctex"]
 
 [params]
 

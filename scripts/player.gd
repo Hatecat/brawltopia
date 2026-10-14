@@ -64,6 +64,7 @@ var _already_hit: Array[Area2D] = []
 
 
 func _ready() -> void:
+	add_to_group("fighters")  # la cámara de pelea encuadra a este grupo
 	if visual_scene:
 		visual = visual_scene.instantiate() as CharacterVisual
 		add_child(visual)
