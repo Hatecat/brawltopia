@@ -91,6 +91,35 @@ def pivot_and_factor(name, mask):
     return pivot, factor
 
 
+def estimate_joints(mask, waist):
+    """Cuello, hombros y caderas (px de juego, relativos a la cintura) según la forma del cuerpo.
+
+    Igual que SheetImporter.estimate_joints en scripts/skins/sheet_importer.gd.
+    """
+    h = mask.shape[0]
+    wx, wy = waist
+    top = -wy / ART_SCALE
+    bottom = (h - wy) / ART_SCALE
+
+    def row(y_game):
+        x0, x1 = width_at(mask, wy + y_game * ART_SCALE)
+        return ((x0 + x1) / 2 - wx) / ART_SCALE, (x1 - x0) / ART_SCALE
+
+    hip_cx, hip_w = row(bottom * 0.75)
+    hip_dx = min(max(hip_w * 0.1, 1.5), 6.0)
+    shoulder_y, neck_y = top + 6.0, top + 2.0
+    sh_cx, _ = row(shoulder_y)
+    neck_cx, _ = row(neck_y)
+    r = lambda v: round(v, 1)  # noqa: E731
+    return {
+        "neck": [r(neck_cx), r(neck_y)],
+        "shoulder_front": [r(sh_cx + 1), r(shoulder_y)],
+        "shoulder_back": [r(sh_cx - 1), r(shoulder_y)],
+        "hip_front": [r(hip_cx + hip_dx), 3.0],
+        "hip_back": [r(hip_cx - hip_dx), 3.0],
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("sheet")
@@ -128,6 +157,9 @@ def main():
                 "scale": round(1.0 / ART_SCALE, 4),
             }
             print(f"  {name + suffix:14s} {size[0]:4d}x{size[1]:<4d} unión ({pvx * f:.0f}, {pvy * f:.0f})")
+            # Las articulaciones se calculan con el cuerpo de la hoja A (mirando a la derecha).
+            if name == "body" and (args.side == "right" or "joints" not in meta):
+                meta["joints"] = estimate_joints(np.array(img)[..., 3] > 128, (pvx * f, pvy * f))
     with open(meta_path, "w") as fh:
         json.dump(meta, fh, indent=2, ensure_ascii=False)
     print(f"skin '{args.skin}' → {os.path.relpath(out_dir, ROOT)}")

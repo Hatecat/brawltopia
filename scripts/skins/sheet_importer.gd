@@ -86,6 +86,9 @@ static func import_sheet(sheet: Image, skin_dir: String, left_side: bool = false
 		var pv := (pivot * factor * 10.0).round() / 10.0
 		meta["parts"][part + suffix] = {"pivot": [pv.x, pv.y], "scale": 1.0 / ART_SCALE}
 		result[part + suffix] = {"size": size, "pivot": pv}
+		# Las articulaciones se calculan con el cuerpo de la hoja A (mirando a la derecha).
+		if part == "body" and (not left_side or not meta.has("joints")):
+			meta["joints"] = estimate_joints(piece, pv)
 
 	var f := FileAccess.open(skin_dir.path_join("skin.json"), FileAccess.WRITE)
 	if f == null:
@@ -93,6 +96,35 @@ static func import_sheet(sheet: Image, skin_dir: String, left_side: bool = false
 	f.store_string(JSON.stringify(meta, "  "))
 	f.close()
 	return {"ok": true, "message": "Skin guardada en %s (%d piezas)." % [skin_dir, result.size()], "parts": result}
+
+
+## Estima dónde van cuello, hombros y caderas a partir de la imagen del cuerpo
+## (ya escalada a ART_SCALE px por px de juego) y su punto de unión (la cintura).
+## Devuelve posiciones en px de juego, relativas a la cintura, para la sección "joints".
+static func estimate_joints(body: Image, waist: Vector2) -> Dictionary:
+	var h := float(body.get_height())
+	var top := -waist.y / ART_SCALE                      # borde de arriba, en px de juego (negativo)
+	var bottom := (h - waist.y) / ART_SCALE              # borde de abajo
+	var to_game := func(span: Vector2) -> Array:
+		# [centro, ancho] de una fila, en px de juego relativos a la cintura
+		return [((span.x + span.y) / 2.0 - waist.x) / ART_SCALE, (span.y - span.x) / ART_SCALE]
+
+	# Caderas: centradas bajo la cadera dibujada, separadas según su ancho.
+	var hips: Array = to_game.call(_row_span(body, waist.y + bottom * ART_SCALE * 0.75))
+	var hip_dx := clampf(hips[1] * 0.1, 1.5, 6.0)
+	# Hombros y cuello: a la misma distancia del borde de arriba que en el esqueleto normal.
+	var shoulder_y := top + 6.0
+	var neck_y := top + 2.0
+	var shoulders: Array = to_game.call(_row_span(body, waist.y + shoulder_y * ART_SCALE))
+	var neck: Array = to_game.call(_row_span(body, waist.y + neck_y * ART_SCALE))
+	var r := func(v: float) -> float: return snappedf(v, 0.1)
+	return {
+		"neck": [r.call(neck[0]), r.call(neck_y)],
+		"shoulder_front": [r.call(shoulders[0] + 1.0), r.call(shoulder_y)],
+		"shoulder_back": [r.call(shoulders[0] - 1.0), r.call(shoulder_y)],
+		"hip_front": [r.call(hips[0] + hip_dx), 3.0],
+		"hip_back": [r.call(hips[0] - hip_dx), 3.0],
+	}
 
 
 ## Quita el magenta: el alfa depende de cuánto se parece cada píxel al color de fondo,

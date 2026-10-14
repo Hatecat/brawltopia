@@ -61,6 +61,29 @@ Las coordenadas se miden desde la esquina superior izquierda. El personaje compl
    El punto de unión de una imagen `_left` se mide en esa imagen, tal como está dibujada.
 2. **Sin `skin.json`.** Cada imagen se estira hasta el tamaño de la tabla, y su punto de unión se ubica en la misma proporción. Sirve si se dibuja exactamente sobre la plantilla.
 
+## Articulaciones propias de cada skin (`joints`)
+
+Cada personaje puede tener los hombros, el cuello y las caderas en lugares distintos (una cadera ancha, hombros altos, un torso largo). La sección `joints` de `skin.json` indica dónde engancha cada uno, en px de juego relativos a la cintura (para las caderas) o al torso (para cuello y hombros):
+
+```json
+"joints": {
+  "neck":           [1, -24],
+  "shoulder_front": [1, -20],
+  "shoulder_back":  [-1, -20],
+  "hip_front":      [2, 3],
+  "hip_back":       [-2, 3]
+}
+```
+
+Los valores de arriba son las posiciones normales; las que falten se quedan así. Cada articulación puede moverse como máximo 12 px desde su posición normal. **El importador las calcula solo** a partir de la forma del cuerpo de la hoja A: centra las piernas bajo la cadera y las separa según su ancho, y ubica hombros y cuello según el alto del torso.
+
+## Errores comunes de las hojas
+
+- **Mezclar ángulos:** todas las piezas deben estar de perfil. Un cuerpo en tres cuartos (con el pecho hacia la cámara) junto a piernas y cabeza de perfil se ve torcido.
+- **Muslos en el cuerpo:** el cuerpo termina en la línea de la cadera. Si trae el comienzo de los muslos, al mover la pierna quedan muslos dobles.
+- **Mano abierta:** el brazo debe terminar en un puño; si no, los golpes parecen cachetadas.
+- **Pelo bajo el cuello:** una coleta que cuelga por debajo del cuello confunde el cálculo del punto de unión de la cabeza.
+
 ## Dónde van las skins
 
 - **Del juego:** `res://assets/characters/skins/<nombre>/`. Por ejemplo, `default/` (piezas provisorias) y `gerald/`. Al exportar el juego hay que incluir `*.json` en los filtros de exportación (*Recursos → Filtros para exportar archivos que no son recursos*).

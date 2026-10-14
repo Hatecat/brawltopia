@@ -47,12 +47,28 @@ const PART_NODES := {
 ## Las extremidades traseras se oscurecen para dar profundidad.
 const BACK_TINT := Color(0.62, 0.62, 0.68)
 
+## Articulaciones que cada skin puede reubicar con la sección "joints" de su skin.json,
+## en px de juego relativos a su nodo padre (la cadera o el torso). Así un personaje
+## de caderas anchas engancha las piernas más separadas, o uno de hombros altos sube los brazos.
+## Si la skin no las indica, se usan las posiciones de rig_visual.tscn.
+const JOINT_NODES := {
+	"neck": "Rig/Hips/Torso/Neck",
+	"shoulder_front": "Rig/Hips/Torso/ShoulderFront",
+	"shoulder_back": "Rig/Hips/Torso/ShoulderBack",
+	"hip_front": "Rig/Hips/HipFront",
+	"hip_back": "Rig/Hips/HipBack",
+}
+## Cuánto puede moverse una articulación respecto de su posición normal (protege
+## contra un skin.json con valores absurdos).
+const MAX_JOINT_OFFSET := 12.0
+
 ## Skin que se carga al iniciar.
 @export_dir var skin_path: String = DEFAULT_SKIN
 
 ## Cómo se dibuja cada pieza según el lado: {"right"/"left": {ruta: {texture, scale, pivot, tint}}}
 var _looks := {"right": {}, "left": {}}
 var _side := "right"
+var _default_joints := {}   # posiciones originales de las articulaciones
 
 @onready var rig: Node2D = $Rig
 @onready var anim_player: AnimationPlayer = $AnimationPlayer
@@ -102,8 +118,24 @@ func load_skin(path: String) -> int:
 				look = _make_look(DEFAULT_SKIN, part, part, default_meta, cache)
 			look["tint"] = BACK_TINT if is_back else Color.WHITE
 			_looks[side][node_path] = look
+	_apply_joints(meta.get("joints", {}))
 	_apply_looks()
 	return used.size()
+
+
+## Ubica cuello, hombros y caderas según la skin (o en su posición normal).
+func _apply_joints(joints) -> void:
+	if _default_joints.is_empty():
+		# La primera vez, guardar las posiciones originales de la escena.
+		for joint: String in JOINT_NODES:
+			_default_joints[joint] = (get_node(JOINT_NODES[joint]) as Node2D).position
+	for joint: String in JOINT_NODES:
+		var pos: Vector2 = _default_joints[joint]
+		if joints is Dictionary and joints.get(joint) is Array and joints[joint].size() == 2:
+			var wanted := Vector2(float(joints[joint][0]), float(joints[joint][1]))
+			# Limitar el desplazamiento respecto de la posición normal.
+			pos = pos + (wanted - pos).limit_length(MAX_JOINT_OFFSET)
+		(get_node(JOINT_NODES[joint]) as Node2D).position = pos
 
 
 ## Nombres de archivo a probar, en orden de preferencia.
