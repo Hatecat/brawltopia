@@ -34,6 +34,14 @@ extends Resource
 ## Ataque aéreo: se puede seguir moviendo en el aire y termina al aterrizar.
 @export var aerial: bool = false
 
+@export_group("Al conectar")
+## Empujón que recibe quien es golpeado, en px/s: x = alejándose del atacante, y negativa = hacia arriba.
+@export var knockback: Vector2 = Vector2(220, -150)
+## Cuadros de juego que el golpeado queda aturdido (sin poder moverse ni atacar).
+@export var hitstun_frames: int = 14
+## Pequeño retroceso de quien golpea, en px/s (hacia atrás).
+@export var self_recoil: float = 200.0
+
 
 func is_active_frame(frame: int) -> bool:
 	return frame >= active_start_frame and frame <= active_end_frame

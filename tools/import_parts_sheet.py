@@ -141,7 +141,7 @@ def pivot_and_factor(name, mask, facing_left=False):
     return pivot, factor
 
 
-def estimate_joints(mask, waist):
+def estimate_joints(mask, waist, front=False):
     """Cuello, hombros y caderas (px de juego, relativos a la cintura) según la forma del cuerpo.
 
     Igual que SheetImporter.estimate_joints en scripts/skins/sheet_importer.gd.
@@ -156,15 +156,16 @@ def estimate_joints(mask, waist):
         return ((x0 + x1) / 2 - wx) / ART_SCALE, (x1 - x0) / ART_SCALE
 
     hip_cx, hip_w = row(bottom * 0.75)
-    hip_dx = min(max(hip_w * 0.1, 1.5), 6.0)
+    hip_dx = min(max(hip_w * (0.22 if front else 0.1), 1.5), 9.0)
     shoulder_y, neck_y = top + 6.0, top + 2.0
-    sh_cx, _ = row(shoulder_y)
+    sh_cx, sh_w = row(shoulder_y)
+    sh_dx = min(max(sh_w * 0.28, 1.0), 9.0) if front else 1.0
     neck_cx, _ = row(neck_y)
     r = lambda v: round(v, 1)  # noqa: E731
     return {
         "neck": [r(neck_cx), r(neck_y)],
-        "shoulder_front": [r(sh_cx + 1), r(shoulder_y)],
-        "shoulder_back": [r(sh_cx - 1), r(shoulder_y)],
+        "shoulder_front": [r(sh_cx + sh_dx), r(shoulder_y)],
+        "shoulder_back": [r(sh_cx - sh_dx), r(shoulder_y)],
         "hip_front": [r(hip_cx + hip_dx), 3.0],
         "hip_back": [r(hip_cx - hip_dx), 3.0],
     }
@@ -175,12 +176,14 @@ def main():
     ap.add_argument("sheet")
     ap.add_argument("skin")
     ap.add_argument("--side", choices=["right", "left"], default="right")
+    ap.add_argument("--view", choices=["side", "front"], default="side",
+                    help="front = vista de tres cuartos (se guarda en <skin>/front/)")
     args = ap.parse_args()
 
     rgba = remove_magenta(np.array(Image.open(args.sheet).convert("RGB")))
     names = [n for row in SHEET_ROWS for n in row]
     lab, rows = find_pieces(rgba, len(names))
-    out_dir = os.path.join(ROOT, "assets/characters/skins", args.skin)
+    out_dir = os.path.join(ROOT, "assets/characters/skins", args.skin, *(["front"] if args.view == "front" else []))
     os.makedirs(out_dir, exist_ok=True)
     meta_path = os.path.join(out_dir, "skin.json")
     meta = json.load(open(meta_path)) if os.path.exists(meta_path) else {}
@@ -209,7 +212,8 @@ def main():
             print(f"  {name + suffix:14s} {size[0]:4d}x{size[1]:<4d} unión ({pvx * f:.0f}, {pvy * f:.0f})")
             # Las articulaciones se calculan con el cuerpo de la hoja A (mirando a la derecha).
             if name == "body" and (args.side == "right" or "joints" not in meta):
-                meta["joints"] = estimate_joints(np.array(img)[..., 3] > 128, (pvx * f, pvy * f))
+                meta["joints"] = estimate_joints(np.array(img)[..., 3] > 128, (pvx * f, pvy * f),
+                                                 args.view == "front")
     with open(meta_path, "w") as fh:
         json.dump(meta, fh, indent=2, ensure_ascii=False)
     print(f"skin '{args.skin}' → {os.path.relpath(out_dir, ROOT)}")

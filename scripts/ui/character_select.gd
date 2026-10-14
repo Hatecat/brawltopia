@@ -5,7 +5,7 @@ extends Control
 ## Muestra una tarjeta por skin con el personaje animado y, a la izquierda, una vista
 ## grande del que está seleccionado. Se maneja con teclado (flechas + Enter o J) o mouse.
 
-const RIG_VISUAL := preload("res://scenes/characters/visuals/rig_visual.tscn")
+const RIG_VISUAL := preload("res://scenes/characters/visuals/fighter_visual.tscn")
 
 const BG := Color("15161d")
 const CARD := Color("23252f")

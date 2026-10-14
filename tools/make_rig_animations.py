@@ -1,7 +1,9 @@
 """Genera las animaciones del esqueleto por piezas (AnimationLibrary de Godot).
 
 Uso (desde la raíz del proyecto): python3 tools/make_rig_animations.py
-Salida: assets/characters/rig/rig_animations.tres
+Salida:
+  assets/characters/rig/rig_animations.tres         esqueleto de perfil (todas las animaciones)
+  assets/characters/rig/rig_front_animations.tres   esqueleto de tres cuartos (quieto y agachado)
 
 Cada animación es una lista de poses clave (tiempo, ángulos en grados).
 Convención de ángulos (personaje mirando a la derecha):
@@ -19,6 +21,7 @@ import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "assets/characters/rig/rig_animations.tres")
+OUT_FRONT = os.path.join(ROOT, "assets/characters/rig/rig_front_animations.tres")
 
 JOINTS = {
     "torso": "Rig/Hips/Torso",
@@ -171,6 +174,41 @@ ANIMS = {
                       shoulder_f=-20, elbow_f=-110, shoulder_b=35, elbow_b=-30)),
         (30 / 60, AIR),
     ]),
+    # Recibir un golpe: el cuerpo se va hacia atrás y los brazos se abren.
+    "hurt": (0.3, False, 1, False, [
+        (0.0, pose(torso=-22, head=14, shoulder_f=25, elbow_f=-45, shoulder_b=35, elbow_b=-35,
+                   hip_f=-22, knee_f=28, hip_b=16, knee_b=20)),
+        (0.3, pose(torso=-14, head=8, shoulder_f=10, elbow_f=-70, shoulder_b=20, elbow_b=-60,
+                   hip_f=-18, knee_f=22, hip_b=14, knee_b=16)),
+    ]),
+}
+
+# --- Esqueleto de tres cuartos (solo quieto y agachado) ---
+# El cuerpo mira más hacia la cámara: piernas algo abiertas, guardia más frontal.
+GUARD_FRONT = dict(torso=3, head=-4, shoulder_f=-38, elbow_f=-118, shoulder_b=-28, elbow_b=-122,
+                   hip_f=-7, knee_f=9, hip_b=9, knee_b=7)
+
+
+def front(**changes):
+    p = dict(GUARD_FRONT)
+    p.update(changes)
+    return p
+
+
+CROUCH_FRONT = front(torso=20, head=-16, hip_f=-80, knee_f=80, hip_b=-76, knee_b=76,
+                     shoulder_f=-50, elbow_f=-105, shoulder_b=-40, elbow_b=-110)
+
+FRONT_ANIMS = {
+    "idle": (1.2, True, 2, False, [
+        (0.0, front()),
+        (0.6, front(torso=5, head=-3, elbow_f=-112, elbow_b=-116, knee_f=13, knee_b=11, hip_f=-9, hip_b=7)),
+        (1.2, front()),
+    ]),
+    "crouch": (0.8, True, 2, False, [
+        (0.0, CROUCH_FRONT),
+        (0.4, dict(CROUCH_FRONT, torso=23, elbow_f=-100, elbow_b=-105)),
+        (0.8, CROUCH_FRONT),
+    ]),
 }
 
 
@@ -193,28 +231,33 @@ def track(i, path, times, values, interp, update=0):
             f'}}\n')
 
 
-subs, data = [], []
-for name, (length, loop, interp, air, keys) in ANIMS.items():
-    times = [t for t, _ in keys]
-    body = [f'[sub_resource type="Animation" id="Animation_{name}"]',
-            f'resource_name = "{name}"',
-            f'length = {fmt(length)}']
-    if loop:
-        body.append("loop_mode = 1")
-    tracks = []
-    for i, (joint, path) in enumerate(JOINTS.items()):
-        vals = [fmt(math.radians(p.get(joint, 0))) for _, p in keys]
-        tracks.append(track(i, f"{path}:rotation", times, vals, interp))
-    hy = [f"Vector2(0, {fmt(hips_y(p, air))})" for _, p in keys]
-    tracks.append(track(len(JOINTS), f"{HIPS}:position", times, hy, interp))
-    subs.append("\n".join(body) + "\n" + "".join(tracks))
-    data.append(f'"{name}": SubResource("Animation_{name}")')
+def write_library(anims, out_path):
+    subs, data = [], []
+    for name, (length, loop, interp, air, keys) in anims.items():
+        times = [t for t, _ in keys]
+        body = [f'[sub_resource type="Animation" id="Animation_{name}"]',
+                f'resource_name = "{name}"',
+                f'length = {fmt(length)}']
+        if loop:
+            body.append("loop_mode = 1")
+        tracks = []
+        for i, (joint, path) in enumerate(JOINTS.items()):
+            vals = [fmt(math.radians(p.get(joint, 0))) for _, p in keys]
+            tracks.append(track(i, f"{path}:rotation", times, vals, interp))
+        hy = [f"Vector2(0, {fmt(hips_y(p, air))})" for _, p in keys]
+        tracks.append(track(len(JOINTS), f"{HIPS}:position", times, hy, interp))
+        subs.append("\n".join(body) + "\n" + "".join(tracks))
+        data.append(f'"{name}": SubResource("Animation_{name}")')
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    with open(out_path, "w") as f:
+        f.write(f'[gd_resource type="AnimationLibrary" load_steps={len(subs) + 1} format=3]\n\n')
+        f.write("\n".join(subs))
+        f.write("\n[resource]\n_data = {\n" + ",\n".join(data) + "\n}\n")
 
-os.makedirs(os.path.dirname(OUT), exist_ok=True)
-with open(OUT, "w") as f:
-    f.write(f'[gd_resource type="AnimationLibrary" load_steps={len(subs) + 1} format=3]\n\n')
-    f.write("\n".join(subs))
-    f.write("\n[resource]\n_data = {\n" + ",\n".join(data) + "\n}\n")
+
+write_library(ANIMS, OUT)
+write_library(FRONT_ANIMS, OUT_FRONT)
+
 
 def rot(v, deg):
     a = math.radians(deg)
@@ -241,6 +284,7 @@ def foot_front(p, hy):
 
 
 print(f"{len(ANIMS)} animaciones → {os.path.relpath(OUT, ROOT)}")
+print(f"{len(FRONT_ANIMS)} animaciones de tres cuartos → {os.path.relpath(OUT_FRONT, ROOT)}")
 for name, (_, _, _, air, keys) in ANIMS.items():
     print(f"  {name:6s} cadera y: {[hips_y(p, air) for _, p in keys]}")
 

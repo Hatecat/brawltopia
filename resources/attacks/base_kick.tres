@@ -13,3 +13,6 @@ hitbox_offset = Vector2(32, -40)
 hitbox_size = Vector2(16, 14)
 crouching = false
 aerial = false
+knockback = Vector2(320, -200)
+hitstun_frames = 18
+self_recoil = 230.0

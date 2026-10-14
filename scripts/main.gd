@@ -1,21 +1,24 @@
 extends Node2D
-## Escena de pelea: une el escenario, el jugador y la cámara.
+## Escena de pelea: une el escenario, los luchadores y la cámara.
 ##
 ## - Viste al jugador con la skin elegida en la pantalla de selección (GameState).
-## - Si el jugador cae fuera del escenario, lo devuelve al punto de aparición.
+## - El muñeco de práctica (Dummy) no se controla: sirve para probar los golpes.
+## - Si un luchador cae fuera del escenario, vuelve a su punto de aparición.
 ## - Esc vuelve a la pantalla de selección de personaje.
 
-## Si el jugador baja de esta altura (px), reaparece.
+## Si un luchador baja de esta altura (px), reaparece.
 @export var fall_limit_y: float = 1000.0
 
 @onready var player: CharacterBody2D = $Player
-@onready var spawn_point: Marker2D = $SpawnPoint
+@onready var dummy: CharacterBody2D = $Dummy
+@onready var spawn_points := {player: $SpawnPoint, dummy: $DummySpawnPoint}
 
 
 func _ready() -> void:
 	if GameState.selected_skin_path != "" and player.visual and player.visual.has_method("load_skin"):
 		player.visual.load_skin(GameState.selected_skin_path)
-	_respawn_player()
+	for fighter in spawn_points:
+		_respawn(fighter)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -24,10 +27,13 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	if player.global_position.y > fall_limit_y:
-		_respawn_player()
+	for fighter in spawn_points:
+		if fighter.global_position.y > fall_limit_y:
+			_respawn(fighter)
 
 
-func _respawn_player() -> void:
-	player.global_position = spawn_point.global_position
-	player.velocity = Vector2.ZERO
+func _respawn(fighter: CharacterBody2D) -> void:
+	fighter.global_position = (spawn_points[fighter] as Marker2D).global_position
+	fighter.velocity = Vector2.ZERO
+	fighter.hitstun_left = 0
+	fighter.damage_taken = 0.0

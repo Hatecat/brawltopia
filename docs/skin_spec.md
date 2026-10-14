@@ -84,6 +84,12 @@ Los valores de arriba son las posiciones normales; las que falten se quedan así
 - **Mano abierta:** el brazo debe terminar en un puño; si no, los golpes parecen cachetadas.
 - **Pelo bajo el cuello:** el importador ignora lo que cuelga por **detrás** de la cabeza (coletas, trenzas, pelo largo) y busca el cuello bajo la cara, así que eso está bien. Lo que sí lo confunde es pelo o barba que cuelgue por **delante**, más abajo que el cuello.
 
+## Vista de tres cuartos (opcional): carpeta `front/`
+
+Quieto o agachado, el personaje se ve casi de frente; al moverse o atacar, de perfil. Para eso la skin lleva una subcarpeta `front/` con las mismas 4 piezas (`head`, `body`, `arm`, `leg`) dibujadas en tres cuartos, y su propio `skin.json`. Se generan con el prompt de tres cuartos de `docs/prompt_copilot.md` y se importan con la casilla **Vista de tres cuartos** del panel Skins (o `--view front` en Python).
+
+En tres cuartos los hombros y las caderas quedan más separados que de perfil; el importador los calcula a partir del ancho del cuerpo y los guarda en `joints`. Si la carpeta `front/` no existe, la skin se ve siempre de perfil.
+
 ## Dónde van las skins
 
 - **Del juego:** `res://assets/characters/skins/<nombre>/`. Por ejemplo, `default/` (piezas provisorias) y `gerald/`. Al exportar el juego hay que incluir `*.json` en los filtros de exportación (*Recursos → Filtros para exportar archivos que no son recursos*).

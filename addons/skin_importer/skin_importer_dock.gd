@@ -9,6 +9,7 @@ var _sheet_path := ""
 var _path_label: Label
 var _name_edit: LineEdit
 var _side_check: CheckBox
+var _front_check: CheckBox
 var _import_button: Button
 var _status: Label
 var _preview: HFlowContainer
@@ -47,6 +48,11 @@ func _init() -> void:
 	_side_check.text = "Hoja B: lado derecho (piezas mirando a la izquierda)"
 	_side_check.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	add_child(_side_check)
+
+	_front_check = CheckBox.new()
+	_front_check.text = "Vista de tres cuartos (se ve al estar quieto o agachado)"
+	_front_check.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	add_child(_front_check)
 
 	_import_button = Button.new()
 	_import_button.text = "Importar"
@@ -100,7 +106,9 @@ func _on_import_pressed() -> void:
 	await get_tree().process_frame  # que el mensaje alcance a verse
 
 	var skin_dir := SKINS_DIR.path_join(skin_name)
-	var result := SheetImporter.import_sheet(image, skin_dir, _side_check.button_pressed)
+	var result := SheetImporter.import_sheet(image, skin_dir, _side_check.button_pressed, _front_check.button_pressed)
+	if _front_check.button_pressed:
+		skin_dir = skin_dir.path_join("front")
 	if not result["ok"]:
 		_show(result["message"], false)
 		return

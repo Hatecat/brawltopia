@@ -11,11 +11,20 @@ script = ExtResource("1_main")
 [node name="TestStage" parent="." unique_id=1876664858 instance=ExtResource("2_stage")]
 
 [node name="SpawnPoint" type="Marker2D" parent="." unique_id=677361431]
-position = Vector2(640, 520)
+position = Vector2(560, 520)
+
+[node name="DummySpawnPoint" type="Marker2D" parent="."]
+position = Vector2(760, 520)
 
 [node name="Player" parent="." unique_id=1802771287 instance=ExtResource("3_player")]
-position = Vector2(640, 520)
+position = Vector2(560, 520)
 skin_path = "res://assets/characters/skins/gerald"
+
+[node name="Dummy" parent="." instance=ExtResource("3_player")]
+position = Vector2(760, 520)
+player_controlled = false
+start_facing = -1.0
+skin_path = "res://assets/characters/skins/default"
 
 [node name="FightCamera" type="Camera2D" parent="." unique_id=741536136]
 position = Vector2(640, 480)

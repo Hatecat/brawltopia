@@ -29,8 +29,12 @@ const PAD := 4
 
 
 ## Importa una hoja. left_side = true para la hoja B (piezas mirando a la izquierda).
+## front_view = true para la vista de tres cuartos (se guarda en <skin>/front/ y se usa
+## al estar quieto o agachado).
 ## Devuelve {"ok": bool, "message": String, "parts": {pieza: {"size", "pivot"}}}.
-static func import_sheet(sheet: Image, skin_dir: String, left_side: bool = false) -> Dictionary:
+static func import_sheet(sheet: Image, skin_dir: String, left_side: bool = false, front_view: bool = false) -> Dictionary:
+	if front_view:
+		skin_dir = skin_dir.path_join("front")
 	if sheet == null or sheet.is_empty():
 		return _fail("No se pudo leer la imagen.")
 	var img := sheet.duplicate() as Image
@@ -88,7 +92,7 @@ static func import_sheet(sheet: Image, skin_dir: String, left_side: bool = false
 		result[part + suffix] = {"size": size, "pivot": pv}
 		# Las articulaciones se calculan con el cuerpo de la hoja A (mirando a la derecha).
 		if part == "body" and (not left_side or not meta.has("joints")):
-			meta["joints"] = estimate_joints(piece, pv)
+			meta["joints"] = estimate_joints(piece, pv, front_view)
 
 	var f := FileAccess.open(skin_dir.path_join("skin.json"), FileAccess.WRITE)
 	if f == null:
@@ -101,7 +105,8 @@ static func import_sheet(sheet: Image, skin_dir: String, left_side: bool = false
 ## Estima dónde van cuello, hombros y caderas a partir de la imagen del cuerpo
 ## (ya escalada a ART_SCALE px por px de juego) y su punto de unión (la cintura).
 ## Devuelve posiciones en px de juego, relativas a la cintura, para la sección "joints".
-static func estimate_joints(body: Image, waist: Vector2) -> Dictionary:
+## front = true para la vista de tres cuartos: hombros y caderas más separados.
+static func estimate_joints(body: Image, waist: Vector2, front: bool = false) -> Dictionary:
 	var h := float(body.get_height())
 	var top := -waist.y / ART_SCALE                      # borde de arriba, en px de juego (negativo)
 	var bottom := (h - waist.y) / ART_SCALE              # borde de abajo
@@ -111,17 +116,19 @@ static func estimate_joints(body: Image, waist: Vector2) -> Dictionary:
 
 	# Caderas: centradas bajo la cadera dibujada, separadas según su ancho.
 	var hips: Array = to_game.call(_row_span(body, waist.y + bottom * ART_SCALE * 0.75))
-	var hip_dx := clampf(hips[1] * 0.1, 1.5, 6.0)
+	var hip_dx := clampf(hips[1] * (0.22 if front else 0.1), 1.5, 9.0)
 	# Hombros y cuello: a la misma distancia del borde de arriba que en el esqueleto normal.
 	var shoulder_y := top + 6.0
 	var neck_y := top + 2.0
 	var shoulders: Array = to_game.call(_row_span(body, waist.y + shoulder_y * ART_SCALE))
+	# De perfil los hombros casi se superponen; de tres cuartos se ven separados.
+	var shoulder_dx: float = clampf(shoulders[1] * 0.28, 1.0, 9.0) if front else 1.0
 	var neck: Array = to_game.call(_row_span(body, waist.y + neck_y * ART_SCALE))
 	var r := func(v: float) -> float: return snappedf(v, 0.1)
 	return {
 		"neck": [r.call(neck[0]), r.call(neck_y)],
-		"shoulder_front": [r.call(shoulders[0] + 1.0), r.call(shoulder_y)],
-		"shoulder_back": [r.call(shoulders[0] - 1.0), r.call(shoulder_y)],
+		"shoulder_front": [r.call(shoulders[0] + shoulder_dx), r.call(shoulder_y)],
+		"shoulder_back": [r.call(shoulders[0] - shoulder_dx), r.call(shoulder_y)],
 		"hip_front": [r.call(hips[0] + hip_dx), 3.0],
 		"hip_back": [r.call(hips[0] - hip_dx), 3.0],
 	}

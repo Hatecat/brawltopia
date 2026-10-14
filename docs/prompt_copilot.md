@@ -84,6 +84,36 @@ PIECES (all facing LEFT, flat, no perspective):
 Same scale and proportions as image 1. Do not draw the assembled character. Draw only the 4 separate pieces on the magenta background.
 ```
 
+## Vista de tres cuartos (quieto y agachado)
+
+Es una hoja aparte, opcional, para que el personaje se vea más de frente cuando está quieto. Adjunta la hoja de presentación del personaje y la hoja A ya generada (para que mantenga los colores y el estilo). Reemplaza la descripción entre corchetes por la de tu personaje.
+
+```
+I am attaching two images:
+- Image 1: the character design (appearance, colors and style).
+- Image 2: the same character already split into 4 cutout pieces seen from the side.
+
+TASK: draw the same 4 cutout pieces of the same character, but now in a THREE-QUARTER FRONT VIEW: the character is turned about 30 degrees from facing the viewer, toward the RIGHT side of the image. We see the chest and the face, with the nose pointing slightly to the right. This is the pose for standing idle in a fighting game.
+
+CHARACTER: [describe the character: hair, face, clothes, accessories, and on which side of the body each one-sided detail is].
+
+STYLE: identical to image 2: clean hand-drawn cartoon, flat colors with simple cel shading, bold dark outline of even thickness. No drop shadows, no glow, no text, no labels, no watermark.
+
+LAYOUT: one single image with a SOLID FLAT MAGENTA BACKGROUND (#FF00FF), filled edge to edge. Exactly 4 separate pieces, never touching or overlapping, with wide empty space between them, in two rows:
+- Top row, left to right: HEAD, BODY.
+- Bottom row, left to right: ARM, LEG.
+
+PIECES (three-quarter view, turned to the right, flat, no strong perspective):
+1. HEAD: head in three-quarter view, both eyes visible, including a short neck at the bottom. Long hair or ponytails must stay ABOVE the neck line or behind the head, never hanging below the chin.
+2. BODY: torso and hips as ONE piece, front of the chest visible, slightly wider than in the side view. No arms, no head, no legs. Clean flat cut at the shoulders and at the bottom of the hips.
+3. ARM: ONE whole arm from shoulder to closed fist, perfectly straight and vertical, hanging down, never bent, seen from the front.
+4. LEG: ONE whole leg from hip to shoe, perfectly straight and vertical, never bent, shoe at the bottom pointing slightly to the RIGHT.
+
+Same scale and proportions as image 2. Do not draw the assembled character. Draw only the 4 separate pieces on the magenta background.
+```
+
+Se importa con el **mismo nombre** de skin y la casilla **Vista de tres cuartos** marcada; queda guardada en `assets/characters/skins/<nombre>/front/`.
+
 ## Si sale mal
 
 - **Mezcla piezas o dibuja al personaje armado:** pídelas de a una, con la misma descripción y estilo, y "single piece centered on a SOLID FLAT MAGENTA BACKGROUND (#FF00FF)".
@@ -101,4 +131,4 @@ Same scale and proportions as image 1. Do not draw the assembled character. Draw
 
 El importador quita el magenta, separa las 4 piezas, calcula el punto de unión y la escala de cada una y guarda la skin en `assets/characters/skins/<nombre>/`. Ver `docs/skin_spec.md`.
 
-Alternativa sin abrir Godot (requiere Python): `python3 tools/import_parts_sheet.py <hoja>.png <nombre> [--side left]`.
+Alternativa sin abrir Godot (requiere Python): `python3 tools/import_parts_sheet.py <hoja>.png <nombre> [--side left] [--view front]`.

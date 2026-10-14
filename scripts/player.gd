@@ -1,5 +1,6 @@
 extends CharacterBody2D
-## Jugador controlable: movimiento, salto, agacharse, gravedad y ataques.
+## Luchador: movimiento, salto, agacharse, gravedad, ataques y reacción a los golpes.
+## Puede controlarlo el jugador (teclado) o quedarse quieto como muñeco de práctica.
 ##
 ## CharacterBody2D no se mueve solo: cada frame de física calculamos
 ## `velocity` y llamamos a move_and_slide(), que mueve el cuerpo,
@@ -10,6 +11,8 @@ extends CharacterBody2D
 
 ## Se emite cuando un ataque toca la hurtbox de otro personaje.
 signal hit_landed(target: Area2D, attack: AttackData)
+## Se emite cuando este luchador recibe un golpe.
+signal got_hit(attack: AttackData)
 
 # --- Parámetros ajustables desde el Inspector (@export) ---
 @export var move_speed: float = 420.0      ## Velocidad horizontal máxima (px/s).
@@ -17,6 +20,11 @@ signal hit_landed(target: Area2D, attack: AttackData)
 @export var air_acceleration: float = 1800.0  ## Control en el aire (menor que en el suelo).
 @export var friction: float = 2800.0       ## Qué tan rápido frena al soltar.
 @export var jump_velocity: float = -900.0  ## Impulso del salto (negativo = hacia arriba).
+
+## Si es false, no lee el teclado: sirve como muñeco de práctica.
+@export var player_controlled: bool = true
+## Hacia dónde mira al empezar: 1 = derecha, -1 = izquierda.
+@export var start_facing: float = 1.0
 
 ## Escena que dibuja al personaje (debe heredar de CharacterVisual).
 @export var visual_scene: PackedScene
@@ -51,6 +59,11 @@ var current_attack: AttackData = null
 ## Cuadro de juego actual del ataque en curso (0 = el cuadro en que empezó).
 var attack_frame: int = 0
 
+## Cuadros de juego que le quedan aturdido tras recibir un golpe (0 = puede actuar).
+var hitstun_left: int = 0
+## Daño acumulado (como el porcentaje de Smash; por ahora solo se cuenta).
+var damage_taken: float = 0.0
+
 ## El dibujo del personaje (se crea en _ready a partir de visual_scene).
 var visual: CharacterVisual
 
@@ -65,6 +78,7 @@ var _already_hit: Array[Area2D] = []
 
 func _ready() -> void:
 	add_to_group("fighters")  # la cámara de pelea encuadra a este grupo
+	facing = signf(start_facing) if start_facing != 0.0 else 1.0
 	if visual_scene:
 		visual = visual_scene.instantiate() as CharacterVisual
 		add_child(visual)
@@ -79,10 +93,19 @@ func _physics_process(delta: float) -> void:
 	_apply_gravity(delta)
 	var on_floor := is_on_floor()
 
+	if hitstun_left > 0:
+		# Aturdido: no puede moverse ni atacar; solo sale despedido y frena al tocar el suelo.
+		hitstun_left -= 1
+		if on_floor:
+			_brake(delta)
+		_update_hurtbox()
+		move_and_slide()
+		return
+
 	if current_attack:
 		_update_attack(on_floor)
 	else:
-		is_crouching = on_floor and Input.is_action_pressed("crouch")
+		is_crouching = on_floor and _pressed("crouch")
 		_handle_attack_input(on_floor)
 
 	if current_attack == null:
@@ -109,14 +132,14 @@ func _apply_gravity(delta: float) -> void:
 
 func _handle_jump() -> void:
 	# Solo se puede saltar estando en el suelo (o sobre una plataforma). Saltar levanta.
-	if Input.is_action_just_pressed("jump") and is_on_floor():
+	if _just_pressed("jump") and is_on_floor():
 		velocity.y = jump_velocity
 		is_crouching = false
 
 
 func _handle_horizontal_movement(delta: float, can_turn: bool) -> void:
 	# get_axis devuelve -1 (izquierda), 0 (nada) o 1 (derecha).
-	var direction := Input.get_axis("move_left", "move_right")
+	var direction := _axis()
 	var accel := acceleration if is_on_floor() else air_acceleration
 
 	if direction != 0.0:
@@ -145,14 +168,14 @@ func _update_hurtbox() -> void:
 
 func _handle_attack_input(on_floor: bool) -> void:
 	var attack: AttackData = null
-	if Input.is_action_just_pressed("punch"):
+	if _just_pressed("punch"):
 		if not on_floor:
 			attack = air_punch_attack
 		elif is_crouching:
 			attack = crouch_punch_attack
 		else:
 			attack = punch_attack
-	elif Input.is_action_just_pressed("kick"):
+	elif _just_pressed("kick"):
 		if not on_floor:
 			attack = air_kick_attack
 		elif is_crouching:
@@ -207,7 +230,51 @@ func _on_hitbox_area_entered(area: Area2D) -> void:
 	if current_attack == null or area == hurtbox or area in _already_hit:
 		return
 	_already_hit.append(area)
-	hit_landed.emit(area, current_attack)
+	var attack := current_attack
+	# La hurtbox es hija del luchador golpeado: avisarle para que reaccione.
+	var target := area.get_parent()
+	if target and target.has_method("receive_hit"):
+		target.receive_hit(attack, facing)
+	# Quien golpea también retrocede un poco (bastante menos que el golpeado).
+	velocity.x -= facing * attack.self_recoil
+	hit_landed.emit(area, attack)
+
+
+## Recibir un golpe. direction: hacia dónde empuja el golpe (1 = derecha, -1 = izquierda).
+func receive_hit(attack: AttackData, direction: float) -> void:
+	if current_attack:
+		_end_attack()                      # un golpe interrumpe el ataque en curso
+	is_crouching = false
+	damage_taken += attack.damage
+	hitstun_left = attack.hitstun_frames
+	velocity = Vector2(attack.knockback.x * direction, attack.knockback.y)
+	facing = -direction                    # mirar hacia quien golpeó
+	if visual:
+		visual.set_facing(facing)
+		visual.play_animation(&"hurt", true)
+		_flash()
+	got_hit.emit(attack)
+
+
+## Destello blanco breve al recibir un golpe.
+func _flash() -> void:
+	visual.modulate = Color(2.2, 2.2, 2.2)
+	var tween := create_tween()
+	tween.tween_property(visual, "modulate", Color.WHITE, 0.15)
+
+
+# --- Entrada (teclado), o nada si es un muñeco ---
+
+func _pressed(action: StringName) -> bool:
+	return player_controlled and Input.is_action_pressed(action)
+
+
+func _just_pressed(action: StringName) -> bool:
+	return player_controlled and Input.is_action_just_pressed(action)
+
+
+func _axis() -> float:
+	return Input.get_axis("move_left", "move_right") if player_controlled else 0.0
 
 
 # --- Animaciones ---

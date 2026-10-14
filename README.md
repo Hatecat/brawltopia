@@ -15,7 +15,9 @@ Juego de lucha 2D tipo *platform fighter*, inspirado en Super Smash Bros. y M.U.
 - **Resolución base 1920×1080**, con ventana inicial de 1280×720; se puede agrandar o poner en pantalla completa y se mantiene nítido.
 - **Importador de skins en el editor:** panel **Skins** (junto al Inspector) que convierte una hoja de piezas de Copilot en una skin, sin Python. Ver `docs/prompt_copilot.md`.
 - **Skins de jugadores:** se cargan desde una carpeta (`user://skins/<nombre>/`). Solo se aceptan PNG de hasta 1024 px; las piezas que falten se toman de la skin por defecto.
-- **Ataques definidos como datos** (`AttackData`), con tiempos en cuadros de juego (60 por segundo): preparación, cuadros activos de la caja de golpe (hitbox) y recuperación. Todavía no hay un rival que reciba el daño.
+- **Ataques definidos como datos** (`AttackData`), con tiempos en cuadros de juego (60 por segundo): preparación, cuadros activos de la caja de golpe (hitbox) y recuperación. Cada ataque define también el empuje y el aturdimiento que causa y el pequeño retroceso de quien lo da.
+- **Muñeco de práctica:** un segundo luchador (`Dummy`, skin por defecto) que no se controla, para probar los golpes. Al recibir uno se ilumina, queda aturdido unos cuadros, sale empujado y se gira hacia quien lo golpeó. Quien golpea retrocede un poco, mucho menos.
+- **Vista de tres cuartos:** quieto o agachado, el personaje se ve casi de frente; al caminar, saltar o atacar pasa a perfil con un fundido corto. Es opcional por skin: se activa si la skin trae una carpeta `front/` (Kren la trae; Gerald, todavía no).
 - Personaje de prueba cuadro a cuadro (Matías), disponible como alternativa: `scenes/characters/player_matias_temp.tscn`.
 
 ## Cómo abrirlo
@@ -46,28 +48,33 @@ Puñetazo y patada cambian según la situación: de pie, agachado o en el aire.
 ```
 project.godot                      configuración: ventana, controles, capas de física
 scenes/
-  main.tscn                        pelea: escenario, jugador, cámara e interfaz
+  main.tscn                        pelea: escenario, jugador, muñeco de práctica, cámara e interfaz
   ui/character_select.tscn         pantalla "Elige tu personaje" (escena inicial)
   stages/test_stage.tscn           suelo y dos plataformas
   characters/
     player.tscn                    jugador: física, hurtbox, hitbox; usa el visual por piezas
     player_matias_temp.tscn        variante con el personaje de prueba cuadro a cuadro
-    visuals/rig_visual.tscn        esqueleto, mallas deformables y AnimationPlayer
+    visuals/fighter_visual.tscn    une las dos vistas (perfil y tres cuartos) y las alterna
+    visuals/rig_visual.tscn        esqueleto, mallas deformables y AnimationPlayer (perfil)
+    visuals/rig_front_visual.tscn  el mismo esqueleto en tres cuartos (quieto y agachado)
     visuals/matias_sprite_visual.tscn
 resources/attacks/                 datos de cada ataque (.tres)
 assets/characters/
   skins/default/                   piezas provisorias (skin por defecto)
   skins/gerald/                    skin generada con Copilot (+ skin.json)
-  rig/rig_animations.tres          animaciones del esqueleto (generadas)
+  skins/kren/                      skin de Copilot, con vista de tres cuartos en front/
+  rig/rig_animations.tres          animaciones del esqueleto de perfil (generadas)
+  rig/rig_front_animations.tres    animaciones de tres cuartos (generadas)
   matias_temp/                     animaciones temporales de Matías
 scripts/
-  player.gd                        movimiento, salto, gravedad y ataques
+  player.gd                        movimiento, salto, gravedad, ataques y golpes recibidos
   attack_data.gd                   definición de un ataque (AttackData)
-  main.gd                          pelea: aplica la skin elegida, reaparición, Esc
+  main.gd                          pelea: aplica la skin elegida, reaparición de cada luchador, Esc
   game_state.gd                    estado global (autoload GameState): personaje elegido
   ui/character_select.gd           pantalla de selección
   fight_camera.gd                  cámara que encuadra a los luchadores
   visuals/character_visual.gd      interfaz común de los visuales
+  visuals/fighter_visual.gd        elige perfil o tres cuartos según la animación
   visuals/rig_visual.gd            personaje por piezas y carga de skins
   visuals/deform_mesh.gd           imagen que se dobla en una articulación
   visuals/sprite_visual.gd         personaje cuadro a cuadro
@@ -86,6 +93,8 @@ tmp_assets/                        imágenes de origen (hojas de referencia y de
 
 - **Personaje:** en `main.tscn`, el nodo `Player` es una instancia de `player.tscn`. Para probar a Matías, reemplázalo por `player_matias_temp.tscn`. En la práctica, el jugador solo cambia su `visual_scene` y sus ataques.
 - **Skin:** se elige en la pantalla de selección. Cualquier carpeta con `head.png`, `body.png`, `arm.png` y `leg.png` (más `skin.json` opcional) en `assets/characters/skins/` o en la carpeta de skins de jugadores aparece ahí sola. El botón "Abrir la carpeta de skins de jugadores" muestra dónde está. Si se abre `main.tscn` directamente con F6, se usa el `skin_path` del nodo `Player`.
+- **Muñeco:** el nodo `Dummy` de `main.tscn` es otro `player.tscn` con **Player Controlled** desactivado. Se le puede cambiar el **Skin Path** en el Inspector.
+- **Fuerza de los golpes:** en cada `resources/attacks/*.tres`, grupo *Al conectar*: `knockback` (empuje al rival, en px/s), `hitstun_frames` (cuadros de aturdimiento) y `self_recoil` (retroceso propio).
 
 ## Capas de física
 
