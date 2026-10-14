@@ -67,7 +67,7 @@ position = Vector2(0, 12)
 position = Vector2(0, 13)
 
 [node name="HipFront" type="Node2D" parent="Rig/Hips"]
-z_index = 3
+z_index = 1
 position = Vector2(-4, 3)
 
 [node name="Leg" type="Polygon2D" parent="Rig/Hips/HipFront" node_paths=PackedStringArray("bend_node")]
