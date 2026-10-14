@@ -6,7 +6,8 @@
 script = ExtResource("1_attack")
 animation = &"kick"
 damage = 9.0
-active_start_frame = 2
-active_end_frame = 3
+total_frames = 30
+active_start_frame = 10
+active_end_frame = 19
 hitbox_offset = Vector2(24, -74)
 hitbox_size = Vector2(30, 22)

@@ -4,17 +4,24 @@ extends Resource
 ##
 ## El código del jugador no sabe nada de "puñetazo" o "patada": solo lee
 ## estos datos. Para crear un ataque nuevo basta con crear otro .tres.
+##
+## Los tiempos se cuentan en CUADROS DE JUEGO (60 por segundo), como en los
+## juegos de pelea. La animación solo es el dibujo: dura total_frames / 60
+## segundos, pero quien decide cuándo golpea es este contador.
 
-## Animación del personaje que se reproduce (debe existir en su SpriteFrames).
+## Animación del personaje que se reproduce (debe existir en su visual).
 @export var animation: StringName
 
 ## Daño que hará al conectar (se usará cuando exista el sistema de daño).
 @export var damage: float = 5.0
 
-## Cuadros de la animación en que el golpe está activo (puede dañar).
-## Se cuentan desde 0. Antes = preparación; después = recuperación.
-@export var active_start_frame: int = 2
-@export var active_end_frame: int = 2
+## Duración total del ataque, en cuadros de juego (60 = 1 segundo).
+@export var total_frames: int = 20
+
+## Cuadros en que el golpe está activo (puede dañar), contados desde 0.
+## Antes = preparación (startup); después = recuperación (recovery).
+@export var active_start_frame: int = 6
+@export var active_end_frame: int = 11
 
 ## Caja de golpe (hitbox), mirando a la derecha. Se voltea sola al mirar a la izquierda.
 ## La posición es relativa a los pies del personaje (Y negativa = hacia arriba).
