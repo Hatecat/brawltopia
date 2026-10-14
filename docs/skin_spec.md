@@ -72,7 +72,8 @@ Cada pieza deformable se cubre con una tira de vértices. Los vértices lejos de
 
 ## Herramientas
 
-- `tools/import_parts_sheet.py <hoja.png> <nombre> [--side left]`: convierte una hoja de 4 piezas sobre fondo magenta (como la que genera Copilot) en una skin con `skin.json`.
+- **Panel "Skins" en el editor de Godot** (`addons/skin_importer`): convierte una hoja de 4 piezas sobre fondo magenta (como la que genera Copilot) en una skin con `skin.json`. No necesita Python. El procesamiento está en `scripts/skins/sheet_importer.gd` (`SheetImporter`), que también puede usarse dentro del juego guardando en `user://skins/`.
+- `tools/import_parts_sheet.py <hoja.png> <nombre> [--side left]`: lo mismo desde la terminal, con Python.
 - `tools/skin_tools.py convert <carpeta> <nombre>`: convierte una skin del formato antiguo de 7 piezas al actual.
 - `tools/rig_spec.py`: la especificación en Python. Debe coincidir con `PART_SPECS` en `scripts/visuals/rig_visual.gd`.
 - `tools/make_placeholder_skin.py`: dibuja las piezas provisorias y la plantilla.

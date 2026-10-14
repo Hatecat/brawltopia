@@ -11,6 +11,7 @@ Juego de lucha 2D tipo *platform fighter*, inspirado en Super Smash Bros. y M.U.
 - **Skins asimétricas:** cada pieza puede tener una versión del otro lado del cuerpo (`_left`). La extremidad de atrás usa siempre la del lado contrario, así un detalle de un solo lado (un tatuaje, una rodillera) queda en su lugar.
 - **Cámara de pelea:** sigue a los luchadores y se acerca o aleja para encuadrarlos a todos (zoom 3 con uno solo).
 - **Resolución base 1920×1080**, con ventana inicial de 1280×720; se puede agrandar o poner en pantalla completa y se mantiene nítido.
+- **Importador de skins en el editor:** panel **Skins** (junto al Inspector) que convierte una hoja de piezas de Copilot en una skin, sin Python. Ver `docs/prompt_copilot.md`.
 - **Skins de jugadores:** se cargan desde una carpeta (`user://skins/<nombre>/`). Solo se aceptan PNG de hasta 1024 px; las piezas que falten se toman de la skin por defecto.
 - **Ataques definidos como datos** (`AttackData`), con tiempos en cuadros de juego (60 por segundo): preparación, cuadros activos de la caja de golpe (hitbox) y recuperación. Todavía no hay un rival que reciba el daño.
 - Personaje de prueba cuadro a cuadro (Matías), disponible como alternativa: `scenes/characters/player_matias_temp.tscn`.
@@ -62,6 +63,8 @@ scripts/
   visuals/rig_visual.gd            personaje por piezas y carga de skins
   visuals/deform_mesh.gd           imagen que se dobla en una articulación
   visuals/sprite_visual.gd         personaje cuadro a cuadro
+  skins/sheet_importer.gd          convierte una hoja de piezas en una skin (SheetImporter)
+addons/skin_importer/              panel "Skins" del editor (usa SheetImporter)
 tools/                             scripts de Python que generan piezas, plantilla y animaciones
 docs/
   skin_spec.md                     especificación de las piezas

@@ -90,13 +90,15 @@ Same scale and proportions as image 1. Do not draw the assembled character. Draw
 - **Dobla el brazo o la pierna:** repite "perfectly straight and vertical, never bent". Una extremidad doblada en la imagen no se puede enderezar después.
 - **Agrega texto o manchas:** regenera, o pinta encima con el mismo magenta en un editor de imágenes.
 
-## Después
+## Después: importar las hojas en Godot
 
-Sube las hojas a `tmp_assets/` en la rama `dev` y conviértelas en una skin:
-
-```
-python3 tools/import_parts_sheet.py tmp_assets/<hoja_A>.png gerald
-python3 tools/import_parts_sheet.py tmp_assets/<hoja_B>.png gerald --side left
-```
+1. Abre el proyecto en Godot. A la derecha, junto al Inspector, aparece el panel **Skins**.
+   Si no lo ves: *Proyecto → Configuración del proyecto → Plugins* y activa **Importador de skins**.
+2. Pulsa **Elegir hoja…** y selecciona la **hoja A** (puede estar en cualquier carpeta, por ejemplo Descargas).
+3. Escribe el nombre de la skin, por ejemplo `gerald`, y pulsa **Importar**.
+4. Repite con la **hoja B**, con el **mismo nombre** y la casilla **Hoja B: lado derecho** marcada.
+5. Para verla en el juego: en `main.tscn`, selecciona el nodo `Player` y en el Inspector cambia **Skin Path** a `res://assets/characters/skins/gerald`. Pulsa **F5**.
 
 El importador quita el magenta, separa las 4 piezas, calcula el punto de unión y la escala de cada una y guarda la skin en `assets/characters/skins/<nombre>/`. Ver `docs/skin_spec.md`.
+
+Alternativa sin abrir Godot (requiere Python): `python3 tools/import_parts_sheet.py <hoja>.png <nombre> [--side left]`.
