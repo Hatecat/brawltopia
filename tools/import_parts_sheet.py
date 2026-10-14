@@ -3,9 +3,9 @@
 Uso (desde la raíz del proyecto):
     python3 tools/import_parts_sheet.py <hoja.png> <nombre_skin> [--side right|left]
 
-La hoja debe tener las 7 piezas separadas sobre magenta liso (#FF00FF), en dos filas:
-    arriba:  head, torso, pelvis
-    abajo:   upper_arm, forearm, thigh, shin
+La hoja debe tener las 4 piezas separadas sobre magenta liso (#FF00FF), en dos filas:
+    arriba:  head, body
+    abajo:   arm, leg
 (el orden del prompt de docs/prompt_copilot.md).
 
 Genera assets/characters/skins/<nombre_skin>/:
@@ -28,11 +28,6 @@ sys.path.insert(0, os.path.dirname(__file__))
 from rig_spec import PARTS, SHEET_ROWS, ART_SCALE  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# Medidas del esqueleto en px de juego (ver rig_visual.tscn):
-JOINT_LEN = {"upper_arm": 12, "thigh": 14}       # de unión a unión (hombro→codo, cadera→rodilla)
-END_LEN = {"forearm": 16, "shin": 21}            # de la unión al extremo (puño, planta del pie)
-
 
 def remove_magenta(rgb):
     """Devuelve RGBA: alfa según cuánto se parece cada píxel al magenta, sin halo rosado."""
@@ -80,24 +75,19 @@ def pivot_and_factor(name, mask):
     """Punto de unión (px de la imagen recortada) y factor para llevarla a ART_SCALE px por px de juego."""
     h, w = mask.shape
     (gw, gh), (px, py), _ = PARTS[name]
-    if name in ("upper_arm", "forearm", "thigh", "shin"):
-        x0, x1 = width_at(mask, h * 0.12)             # ancho del extremo superior (sin la zapatilla)
-        top_w = x1 - x0
-        pivot = ((x0 + x1) / 2, top_w / 2)
-        if name in JOINT_LEN:
-            bx0, bx1 = width_at(mask, h * 0.88)
-            length = (h - (bx1 - bx0) / 2) - pivot[1]
-            factor = JOINT_LEN[name] * ART_SCALE / length
-        else:
-            length = h - pivot[1]
-            factor = END_LEN[name] * ART_SCALE / length
-    elif name == "pelvis":
-        factor = gw * ART_SCALE / w                     # ajustar por ancho
-        pivot = (w / 2, py * ART_SCALE / factor)
-    else:  # head, torso: ajustar por alto; unión abajo, centrada en la parte inferior
+    if name in ("arm", "leg"):
+        # Extremidad recta colgando: la unión es el centro del extremo redondeado de arriba,
+        # y el largo desde la unión hasta el final (puño / planta del pie) define la escala.
+        x0, x1 = width_at(mask, h * 0.08)
+        pivot = ((x0 + x1) / 2, (x1 - x0) / 2)
+        factor = (gh - py) * ART_SCALE / (h - pivot[1])
+    else:
+        # head, body: ajustar por alto. head: unión en el cuello (abajo);
+        # body: unión en la cintura, a la altura que indica la especificación.
         factor = gh * ART_SCALE / h
-        x0, x1 = width_at(mask, h * 0.97)
-        pivot = ((x0 + x1) / 2, h * py / gh)
+        y = h * py / gh
+        x0, x1 = width_at(mask, min(y, h * 0.97))
+        pivot = ((x0 + x1) / 2, y)
     return pivot, factor
 
 

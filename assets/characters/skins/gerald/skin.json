@@ -8,45 +8,24 @@
       ],
       "scale": 0.25
     },
-    "torso": {
+    "body": {
       "pivot": [
-        40.5,
+        44.0,
         104.0
       ],
       "scale": 0.25
     },
-    "pelvis": {
-      "pivot": [
-        44.0,
-        8.0
-      ],
-      "scale": 0.25
-    },
-    "upper_arm": {
+    "arm": {
       "pivot": [
         13.2,
         11.0
       ],
       "scale": 0.25
     },
-    "forearm": {
-      "pivot": [
-        11.2,
-        9.6
-      ],
-      "scale": 0.25
-    },
-    "thigh": {
-      "pivot": [
-        15.9,
-        14.0
-      ],
-      "scale": 0.25
-    },
-    "shin": {
+    "leg": {
       "pivot": [
         17.3,
-        15.4
+        14.0
       ],
       "scale": 0.25
     }
